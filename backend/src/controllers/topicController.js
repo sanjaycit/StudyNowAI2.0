@@ -135,8 +135,10 @@ const reviewTopic = async (req, res) => {
 
         topic.status = 'revised';
         topic.lastReviewed = new Date();
-        topic.nextReviewDate = calculateNextReviewDate(topic.difficulty, topic.lastReviewed);
-        
+        // Increment repetition level, default to 0 if undefined
+        topic.repetitionLevel = (topic.repetitionLevel || 0) + 1;
+        topic.nextReviewDate = calculateNextReviewDate(topic.difficulty, topic.lastReviewed, topic.repetitionLevel);
+
         const updatedTopic = await topic.save();
         res.status(200).json(updatedTopic);
 

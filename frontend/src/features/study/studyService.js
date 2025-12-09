@@ -64,6 +64,10 @@ const studyService = {
     createTopic,
     updateTopic,
     deleteTopic,
+    reviewTopic: async (id) => {
+        const response = await axiosInstance.put(`/api/topics/${id}/review`);
+        return response.data;
+    },
 };
 
 export default studyService; 

@@ -2,7 +2,7 @@
 // File: /src/pages/Topics.jsx
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getTopics, createTopic, updateTopic, deleteTopic, getSubjects, reset } from '../features/study/studySlice';
+import { getTopics, createTopic, updateTopic, deleteTopic, reviewTopic, getSubjects, reset } from '../features/study/studySlice';
 import { toast } from 'react-hot-toast';
 
 const Topics = () => {
@@ -47,7 +47,7 @@ const Topics = () => {
             setFormError('Please select a subject and enter a topic name.');
             return;
         }
-        
+
         const topicData = { ...form };
 
         if (editingId) {
@@ -78,9 +78,7 @@ const Topics = () => {
     const handleReview = async (topicId) => {
         setIsReviewing(topicId);
         try {
-            await axiosInstance.put(`/api/topics/${topicId}/review`);
-            // Refresh topics after marking as reviewed
-            dispatch(getTopics());
+            await dispatch(reviewTopic(topicId)).unwrap();
             toast.success('Topic marked as reviewed!');
         } catch (error) {
             console.error('Error marking topic as reviewed:', error);

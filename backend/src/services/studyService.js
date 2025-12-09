@@ -9,11 +9,14 @@ const reviewIntervals = {
 };
 
 // This function figures out when the next review should be, based on difficulty
-const calculateNextReviewDate = (difficulty, lastReviewed) => {
+const calculateNextReviewDate = (difficulty, lastReviewed, repetitionLevel = 0) => {
     const today = new Date();
-    // This is a simplified logic. A real app would track the repetition count.
-    // For now, we'll just add the first interval.
-    const interval = reviewIntervals[difficulty][0]; 
+    // Get the interval based on the current repetition level
+    // If level exceeds array length, use the last value (max interval)
+    const intervals = reviewIntervals[difficulty];
+    const index = Math.min(repetitionLevel, intervals.length - 1);
+    const interval = intervals[index];
+
     const nextDate = new Date(lastReviewed || today);
     nextDate.setDate(nextDate.getDate() + interval);
     return nextDate;
@@ -104,11 +107,11 @@ const updatePriorityScores = async (userId) => {
 // Get the top 10 high-priority topics for the user
 const getStudySchedule = async (userId) => {
     await updatePriorityScores(userId);
-    
+
     // Get user preferences to determine how many topics to return
     const User = require('../models/userModel');
     const user = await User.findById(userId);
-    
+
     // Calculate target topics based on daily study goal
     let targetTopics = 10; // default
     if (user?.preferences?.dailyStudyGoal) {
@@ -130,7 +133,7 @@ const getStudySchedule = async (userId) => {
                 break;
         }
     }
-    
+
     const topics = await Topic.find({ user: userId })
         .populate('subject', 'name examDate')
         .sort({ priorityScore: -1 })

@@ -86,6 +86,14 @@ export const deleteTopic = createAsyncThunk('study/deleteTopic', async (id, thun
     }
 });
 
+export const reviewTopic = createAsyncThunk('study/reviewTopic', async (id, thunkAPI) => {
+    try {
+        return await studyService.reviewTopic(id);
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.toString());
+    }
+});
+
 export const studySlice = createSlice({
     name: 'study',
     initialState,
@@ -152,6 +160,14 @@ export const studySlice = createSlice({
                 state.isLoading = false;
                 state.isSuccess = true;
                 state.topics = state.topics.filter(t => t._id !== action.payload);
+            })
+            .addCase(reviewTopic.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isSuccess = true;
+                const index = state.topics.findIndex(t => t._id === action.payload._id);
+                if (index !== -1) {
+                    state.topics[index] = action.payload;
+                }
             })
             // General matchers for pending and rejected states
             // These MUST come after all addCase calls

@@ -4,7 +4,7 @@ import axios from 'axios';
 // Create axios instance with environment-based API URL
 // Note: Backend routes already include /api/ prefix, so we don't add it here
 const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+    baseURL: 'http://localhost:5000',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
