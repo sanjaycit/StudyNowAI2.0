@@ -45,7 +45,7 @@ const StudySession = () => {
                 <div className="text-center text-red-600">
                     <p className="text-xl font-semibold">Error loading topic</p>
                     <p>{message}</p>
-                    <button onClick={() => navigate('/dashboard')} className="mt-4 text-blue-600 hover:underline">
+                    <button onClick={() => navigate('/dashboard')} className="mt-4 text-blue-600 hover:underline cursor-pointer">
                         Back to Dashboard
                     </button>
                 </div>
@@ -60,7 +60,7 @@ const StudySession = () => {
             <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
                 <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
                     <div className="flex items-center space-x-4">
-                        <button onClick={() => navigate('/dashboard')} className="text-gray-500 hover:text-gray-700">
+                        <button onClick={() => navigate('/dashboard')} className="text-gray-500 hover:text-gray-700 cursor-pointer">
                             ← Back
                         </button>
                         <h1 className="text-xl font-bold text-gray-900">{currentTopic.name}</h1>
@@ -83,7 +83,7 @@ const StudySession = () => {
                             <button
                                 onClick={handleGenerateRoadmap}
                                 disabled={isLoading}
-                                className="w-full btn-primary py-3 flex items-center justify-center space-x-2"
+                                className="w-full btn-primary py-3 flex items-center justify-center space-x-2 cursor-pointer"
                             >
                                 {isLoading ? (
                                     <>
@@ -100,41 +100,80 @@ const StudySession = () => {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">Your Learning Roadmap</h2>
-                            <div className="text-sm text-gray-500">
+                        <div className="flex justify-between items-center mb-10">
+                            <div>
+                                <h2 className="text-3xl font-bold text-gray-900">Your Journey</h2>
+                                <p className="text-gray-500 mt-1">Follow the path to master {currentTopic.name}</p>
+                            </div>
+                            <div className="bg-blue-100 px-4 py-2 rounded-full text-blue-700 font-semibold text-sm">
                                 {currentTopic.roadmap.length} Steps
                             </div>
                         </div>
 
-                        <div className="space-y-4">
-                            {currentTopic.roadmap.map((step, index) => (
-                                <motion.div
-                                    key={index}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.1 }}
-                                    className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-300 transition-colors"
-                                >
-                                    <div className="flex justify-between items-start">
-                                        <div className="flex-1">
-                                            <div className="flex items-center space-x-3 mb-2">
-                                                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
-                                                    {index + 1}
-                                                </span>
-                                                <h3 className="text-lg font-bold text-gray-900">{step.title}</h3>
-                                            </div>
-                                            <p className="text-gray-600 ml-11">{step.description}</p>
+                        <div className="relative">
+                            {/* Vertical Line */}
+                            <div className="absolute left-8 top-4 bottom-4 w-1 bg-gradient-to-b from-blue-200 to-purple-200 rounded-full hidden md:block"></div>
+
+                            <div className="space-y-8">
+                                {currentTopic.roadmap.map((step, index) => (
+                                    <motion.div
+                                        key={index}
+                                        initial={{ opacity: 0, x: -50 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: index * 0.15 }}
+                                        className="relative flex items-start group"
+                                    >
+                                        {/* Connector Circle */}
+                                        <div className="absolute left-8 -translate-x-1/2 mt-6 hidden md:flex items-center justify-center">
+                                            <div className="w-8 h-8 rounded-full bg-white border-4 border-blue-500 z-10 shadow-md group-hover:scale-110 transition-transform duration-300"></div>
                                         </div>
-                                        <button
-                                            className="ml-4 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0"
-                                            onClick={() => toast('Starting study session...', { icon: '🚀' })}
-                                        >
-                                            Start Study
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            ))}
+
+                                        {/* Content Card */}
+                                        <div className="ml-0 md:ml-20 w-full">
+                                            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative overflow-hidden">
+                                                {/* Decorative background element */}
+                                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-purple-50 rounded-bl-full -mr-8 -mt-8 opacity-50"></div>
+
+                                                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-3 mb-2">
+                                                            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm">
+                                                                {index + 1}
+                                                            </span>
+                                                            <h3 className="text-xl font-bold text-gray-900">{step.title}</h3>
+                                                        </div>
+                                                        <p className="text-gray-600 leading-relaxed ml-11">{step.description}</p>
+                                                    </div>
+
+                                                    <button
+                                                        className="md:self-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-300 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 min-w-[140px] cursor-pointer"
+                                                        onClick={() => toast('Starting study session...', { icon: '🚀' })}
+                                                    >
+                                                        <span>Start</span>
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+
+                            {/* Finish Line */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: currentTopic.roadmap.length * 0.15 + 0.5 }}
+                                className="mt-12 text-center"
+                            >
+                                <div className="inline-block p-4 rounded-full bg-green-50 text-green-600 mb-2">
+                                    <span className="text-4xl">🏆</span>
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900">Completion Goal</h3>
+                                <p className="text-gray-500 text-sm">Finish all steps to master this topic!</p>
+                            </motion.div>
                         </div>
                     </div>
                 )}
