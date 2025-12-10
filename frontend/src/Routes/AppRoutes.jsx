@@ -11,6 +11,7 @@ import ForgotPassword from "../pages/ForgotPassword";
 import StudyPlan from "../pages/StudyPlan";
 import StudySession from "../pages/StudySession";
 import StudyResources from "../pages/StudyResources";
+import QuizPage from "../pages/QuizPage";
 
 // AppRoutes handles all the main routes for the app
 const AppRoutes = () => {
@@ -73,6 +74,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <StudyResources />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quiz/:id/:stepIndex?"
+        element={
+          <ProtectedRoute>
+            <QuizPage />
           </ProtectedRoute>
         }
       />

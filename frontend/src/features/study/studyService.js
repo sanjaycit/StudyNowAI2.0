@@ -80,6 +80,22 @@ const studyService = {
         const response = await axiosInstance.post(`/api/topics/${id}/resources`, { stepTitle });
         return response.data;
     },
+    getQuiz: async (id) => {
+        const response = await axiosInstance.get(`/api/topics/${id}/quiz`);
+        return response.data;
+    },
+    submitQuiz: async (id, answers) => {
+        const response = await axiosInstance.post(`/api/topics/${id}/quiz`, { answers });
+        return response.data;
+    },
+    getStepQuiz: async (id, stepIndex) => {
+        const response = await axiosInstance.get(`/api/topics/${id}/roadmap/steps/${stepIndex}/quiz`);
+        return response.data;
+    },
+    submitStepQuiz: async (id, stepIndex, answers) => {
+        const response = await axiosInstance.post(`/api/topics/${id}/roadmap/steps/${stepIndex}/quiz`, { answers });
+        return response.data;
+    },
 };
 
 export default studyService; 

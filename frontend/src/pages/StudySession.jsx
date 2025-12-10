@@ -36,6 +36,11 @@ const StudySession = () => {
         navigate(`/study/${id}/resources?step=${encodeURIComponent(stepTitle)}`);
     };
 
+    const handleTakeStepQuiz = (index) => {
+        // Navigate to step quiz (we'll assume index approach)
+        navigate(`/quiz/${id}/${index}`);
+    };
+
     if (isLoading && !currentTopic) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -150,15 +155,36 @@ const StudySession = () => {
                                                         <p className="text-gray-600 leading-relaxed ml-11">{step.description}</p>
                                                     </div>
 
-                                                    <button
-                                                        className="md:self-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-300 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 min-w-[140px] cursor-pointer"
-                                                        onClick={() => handleStartStep(step.title)}
-                                                    >
-                                                        <span>Start</span>
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                                        </svg>
-                                                    </button>
+                                                    <div className="flex flex-col md:flex-row gap-3 md:self-center">
+                                                        <button
+                                                            className="bg-white text-blue-600 border-2 border-blue-600 px-6 py-3 rounded-xl font-medium hover:bg-blue-50 transition-all duration-300 flex items-center justify-center gap-2 min-w-[140px] cursor-pointer"
+                                                            onClick={() => handleStartStep(step.title)}
+                                                        >
+                                                            <span>Resources</span>
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                                            </svg>
+                                                        </button>
+
+                                                        {step.status === 'completed' ? (
+                                                            <div className="bg-green-100 text-green-700 px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 min-w-[140px]">
+                                                                <span>Completed</span>
+                                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                            </div>
+                                                        ) : (
+                                                            <button
+                                                                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-300 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 min-w-[140px] cursor-pointer"
+                                                                onClick={() => handleTakeStepQuiz(index)}
+                                                            >
+                                                                <span>Take Quiz</span>
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                                                </svg>
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

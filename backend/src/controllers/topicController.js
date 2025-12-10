@@ -1,6 +1,6 @@
 const Topic = require('../models/topicModel');
 const { calculateNextReviewDate } = require('../services/studyService');
-const { generateRoadmap } = require('../services/aiService');
+const { generateRoadmap, generateQuiz } = require('../services/aiService');
 
 // @desc    Get all topics for a user
 // @route   GET /api/topics
@@ -149,8 +149,6 @@ const reviewTopic = async (req, res) => {
     }
 };
 
-
-
 // @desc    Generate a roadmap for a topic using AI
 // @route   POST /api/topics/:id/roadmap
 // @access  Private
@@ -253,6 +251,286 @@ const getStepResources = async (req, res) => {
     }
 };
 
+const getTopicQuiz = async (req, res) => {
+    try {
+        const topic = await Topic.findById(req.params.id).populate('subject');
+
+        if (!topic) {
+            return res.status(404).json({ message: 'Topic not found' });
+        }
+
+        if (topic.user.toString() !== req.user.id) {
+            return res.status(401).json({ message: 'Unauthorized access' });
+        }
+
+        // Check if quiz already exists
+        if (topic.quiz && topic.quiz.questions && topic.quiz.questions.length > 0) {
+            // Return questions without correct answers for security
+            const questionsForFrontend = topic.quiz.questions.map(q => ({
+                _id: q._id,
+                question: q.question,
+                options: q.options,
+                difficulty: q.difficulty
+            }));
+            return res.status(200).json(questionsForFrontend);
+        }
+
+        // Generate quiz
+        console.log("[Topic Controller] Generating quiz...");
+        const quizQuestions = await generateQuiz(topic.name, topic.subject.name);
+
+        topic.quiz = {
+            questions: quizQuestions,
+            results: null
+        };
+
+        await topic.save();
+
+        const questionsForFrontend = topic.quiz.questions.map(q => ({
+            _id: q._id,
+            question: q.question,
+            options: q.options,
+            difficulty: q.difficulty
+        }));
+
+        res.status(200).json(questionsForFrontend);
+
+    } catch (error) {
+        console.error('Get Quiz Error:', error.message);
+        res.status(500).json({ message: 'Server error while fetching quiz' });
+    }
+};
+
+const submitTopicQuiz = async (req, res) => {
+    const { answers } = req.body; // Array of indices corresponding to questions
+    // Expecting answers to be an array of objects: { questionId, selectedOptionIndex } OR just ordered array if we trust order.
+    // Better: Map { questionId: index } or just array of indices matching the order sent.
+    // Let's assume ordered array of indices for simplicity as we send them sorted.
+    // Actually, safest is { [questionId]: selectedIndex }.
+
+    try {
+        const topic = await Topic.findById(req.params.id);
+
+        if (!topic) {
+            return res.status(404).json({ message: 'Topic not found' });
+        }
+
+        if (!topic.quiz || !topic.quiz.questions || topic.quiz.questions.length === 0) {
+            return res.status(400).json({ message: 'No quiz generated for this topic' });
+        }
+
+        let correctCount = 0;
+        const totalQuestions = topic.quiz.questions.length;
+        const missedDifficulties = {};
+
+        // Calculate score
+        // We assume 'answers' is an array of indices matching the questions order, 
+        // OR an object with question indices.
+        // Let's assume input: { answers: [0, 2, 1, ... ] } corresponding to questions 0..14.
+
+        topic.quiz.questions.forEach((q, index) => {
+            const userAns = answers[index];
+            if (userAns !== undefined && userAns === q.correctAnswer) {
+                correctCount++;
+            } else {
+                // Track missed difficulties
+                missedDifficulties[q.difficulty] = (missedDifficulties[q.difficulty] || 0) + 1;
+            }
+        });
+
+        const percentage = (correctCount / totalQuestions) * 100;
+
+        // Determine areas to improve
+        let areasToImprove = "None! Perfect score.";
+        if (percentage < 100) {
+            const difficulties = Object.keys(missedDifficulties);
+            if (difficulties.length > 0) {
+                areasToImprove = `You need to focus more on ${difficulties.join(', ')} level questions.`;
+            } else {
+                areasToImprove = "Review the topic materials securely.";
+            }
+        }
+
+        // Save results
+        topic.quiz.results = {
+            score: correctCount,
+            percentage: percentage,
+            areasToImprove: areasToImprove,
+            completedAt: new Date()
+        };
+
+        // Mark topic as completed
+        topic.status = 'completed';
+
+        await topic.save();
+
+        // Check if all topics in subject are completed
+        // (Optional: Logic to mark Subject completed if we had that field)
+        const allTopics = await Topic.find({ subject: topic.subject });
+        const allCompleted = allTopics.every(t => t.status === 'completed');
+
+        res.status(200).json({
+            score: correctCount,
+            total: totalQuestions,
+            percentage,
+            areasToImprove,
+            subjectCompleted: allCompleted
+        });
+
+    } catch (error) {
+        console.error('Submit Quiz Error:', error.message);
+        res.status(500).json({ message: 'Server error while submitting quiz' });
+    }
+};
+
+const getStepQuiz = async (req, res) => {
+    const { stepIndex } = req.params; // Using index as ID roughly
+    try {
+        const topic = await Topic.findById(req.params.id).populate('subject');
+
+        if (!topic) {
+            return res.status(404).json({ message: 'Topic not found' });
+        }
+
+        if (topic.user.toString() !== req.user.id) {
+            return res.status(401).json({ message: 'Unauthorized access' });
+        }
+
+        const stepIdx = parseInt(stepIndex);
+        if (isNaN(stepIdx) || stepIdx < 0 || stepIdx >= topic.roadmap.length) {
+            return res.status(404).json({ message: 'Step not found' });
+        }
+
+        const step = topic.roadmap[stepIdx];
+
+        // Check if quiz exists
+        if (step.quiz && step.quiz.questions && step.quiz.questions.length > 0) {
+            const questionsForFrontend = step.quiz.questions.map(q => ({
+                _id: q._id,
+                question: q.question,
+                options: q.options,
+                difficulty: q.difficulty
+            }));
+            return res.status(200).json(questionsForFrontend);
+        }
+
+        // Generate quiz for this step
+        console.log(`[Topic Controller] Generating quiz for step: ${step.title}`);
+        const quizQuestions = await generateQuiz(topic.name, topic.subject.name, step.title);
+
+        step.quiz = {
+            questions: quizQuestions,
+            results: null
+        };
+
+        await topic.save();
+
+        const questionsForFrontend = step.quiz.questions.map(q => ({
+            _id: q._id,
+            question: q.question,
+            options: q.options,
+            difficulty: q.difficulty
+        }));
+
+        res.status(200).json(questionsForFrontend);
+
+    } catch (error) {
+        console.error('Get Step Quiz Error:', error.message);
+        res.status(500).json({ message: 'Server error while fetching step quiz' });
+    }
+};
+
+const submitStepQuiz = async (req, res) => {
+    const { stepIndex } = req.params;
+    const { answers } = req.body;
+
+    try {
+        const topic = await Topic.findById(req.params.id);
+
+        if (!topic) {
+            return res.status(404).json({ message: 'Topic not found' });
+        }
+
+        const stepIdx = parseInt(stepIndex);
+        if (isNaN(stepIdx) || stepIdx < 0 || stepIdx >= topic.roadmap.length) {
+            return res.status(404).json({ message: 'Step not found' });
+        }
+
+        const step = topic.roadmap[stepIdx];
+
+        if (!step.quiz || !step.quiz.questions || step.quiz.questions.length === 0) {
+            return res.status(400).json({ message: 'No quiz generated for this step' });
+        }
+
+        let correctCount = 0;
+        const totalQuestions = step.quiz.questions.length;
+        const missedDifficulties = {};
+
+        step.quiz.questions.forEach((q, index) => {
+            const userAns = answers[index];
+            if (userAns !== undefined && userAns === q.correctAnswer) {
+                correctCount++;
+            } else {
+                missedDifficulties[q.difficulty] = (missedDifficulties[q.difficulty] || 0) + 1;
+            }
+        });
+
+        const percentage = (correctCount / totalQuestions) * 100;
+
+        // Determine areas to improve for this step
+        let areasToImprove = "None! Perfect score.";
+        if (percentage < 100) {
+            const difficulties = Object.keys(missedDifficulties);
+            if (difficulties.length > 0) {
+                areasToImprove = `For step "${step.title}", focus more on ${difficulties.join(', ')} level concepts.`;
+            } else {
+                areasToImprove = "Review the step materials.";
+            }
+        }
+
+        // Save results
+        step.quiz.results = {
+            score: correctCount,
+            percentage: percentage,
+            areasToImprove: areasToImprove,
+            completedAt: new Date()
+        };
+
+        // Mark step as completed if passed (e.g. > 50%)
+        // The user requirement: "After person completes a full quiz, teh topic has to be marked completed."
+        // Assuming "Topic" means "Step" here, or the big topic.
+        // Assuming completion regardless of score for now, or enforcing specific pass rate?
+        // Let's mark completed if they submitted.
+
+        step.status = 'completed';
+
+        // Check if ALL steps are completed
+        const allStepsCompleted = topic.roadmap.every(s => s.status === 'completed');
+
+        // If all steps completed, mark Topic as completed
+        let topicJustCompleted = false;
+        if (allStepsCompleted && topic.status !== 'completed') {
+            topic.status = 'completed';
+            topicJustCompleted = true;
+        }
+
+        await topic.save();
+
+        res.status(200).json({
+            score: correctCount,
+            total: totalQuestions,
+            percentage,
+            areasToImprove,
+            stepCompleted: true,
+            topicCompleted: topicJustCompleted || topic.status === 'completed'
+        });
+
+    } catch (error) {
+        console.error('Submit Step Quiz Error:', error.message);
+        res.status(500).json({ message: 'Server error while submitting step quiz' });
+    }
+};
+
 module.exports = {
     getTopics,
     getTopic,
@@ -262,4 +540,8 @@ module.exports = {
     reviewTopic,
     generateTopicRoadmap,
     getStepResources,
+    getTopicQuiz,
+    submitTopicQuiz,
+    getStepQuiz,
+    submitStepQuiz
 };

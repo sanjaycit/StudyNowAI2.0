@@ -10,6 +10,9 @@ const initialState = {
     isError: false,
     isSuccess: false,
     message: '',
+    quiz: null,
+    quizResult: null,
+    isQuizLoading: false,
 };
 
 // Async Thunks
@@ -119,6 +122,38 @@ export const fetchStepResources = createAsyncThunk('study/fetchStepResources', a
     }
 });
 
+export const getTopicQuiz = createAsyncThunk('study/getTopicQuiz', async (id, thunkAPI) => {
+    try {
+        return await studyService.getQuiz(id);
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.toString());
+    }
+});
+
+export const submitTopicQuiz = createAsyncThunk('study/submitTopicQuiz', async ({ id, answers }, thunkAPI) => {
+    try {
+        return await studyService.submitQuiz(id, answers);
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.toString());
+    }
+});
+
+export const getStepQuiz = createAsyncThunk('study/getStepQuiz', async ({ id, stepIndex }, thunkAPI) => {
+    try {
+        return await studyService.getStepQuiz(id, stepIndex);
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.toString());
+    }
+});
+
+export const submitStepQuiz = createAsyncThunk('study/submitStepQuiz', async ({ id, stepIndex, answers }, thunkAPI) => {
+    try {
+        return await studyService.submitStepQuiz(id, stepIndex, answers);
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.toString());
+    }
+});
+
 export const studySlice = createSlice({
     name: 'study',
     initialState,
@@ -128,6 +163,9 @@ export const studySlice = createSlice({
             state.isError = false;
             state.isSuccess = false;
             state.message = '';
+            state.quiz = null;
+            state.quizResult = null;
+            state.isQuizLoading = false;
         },
     },
     extraReducers: (builder) => {
@@ -208,6 +246,56 @@ export const studySlice = createSlice({
                 if (index !== -1) {
                     state.topics[index] = action.payload;
                 }
+            })
+            // Quiz
+            .addCase(getTopicQuiz.pending, (state) => {
+                state.isQuizLoading = true;
+            })
+            .addCase(getTopicQuiz.fulfilled, (state, action) => {
+                state.isQuizLoading = false;
+                state.quiz = action.payload;
+            })
+            .addCase(getTopicQuiz.rejected, (state, action) => {
+                state.isQuizLoading = false;
+                state.isError = true;
+                state.message = action.payload;
+            })
+            .addCase(submitTopicQuiz.pending, (state) => {
+                state.isQuizLoading = true;
+            })
+            .addCase(submitTopicQuiz.fulfilled, (state, action) => {
+                state.isQuizLoading = false;
+                state.quizResult = action.payload; // { score, total, percentage, areasToImprove, subjectCompleted }
+            })
+            .addCase(submitTopicQuiz.rejected, (state, action) => {
+                state.isQuizLoading = false;
+                state.isError = true;
+                state.message = action.payload;
+            })
+            // Step Quiz
+            .addCase(getStepQuiz.pending, (state) => {
+                state.isQuizLoading = true;
+            })
+            .addCase(getStepQuiz.fulfilled, (state, action) => {
+                state.isQuizLoading = false;
+                state.quiz = action.payload;
+            })
+            .addCase(getStepQuiz.rejected, (state, action) => {
+                state.isQuizLoading = false;
+                state.isError = true;
+                state.message = action.payload;
+            })
+            .addCase(submitStepQuiz.pending, (state) => {
+                state.isQuizLoading = true;
+            })
+            .addCase(submitStepQuiz.fulfilled, (state, action) => {
+                state.isQuizLoading = false;
+                state.quizResult = action.payload;
+            })
+            .addCase(submitStepQuiz.rejected, (state, action) => {
+                state.isQuizLoading = false;
+                state.isError = true;
+                state.message = action.payload;
             })
             // General matchers for pending and rejected states
             // These MUST come after all addCase calls

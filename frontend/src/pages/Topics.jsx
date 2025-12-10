@@ -1,12 +1,14 @@
 // This page lets users manage topics for their subjects
 // File: /src/pages/Topics.jsx
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { getTopics, createTopic, updateTopic, deleteTopic, reviewTopic, getSubjects, reset } from '../features/study/studySlice';
 import { toast } from 'react-hot-toast';
 
 const Topics = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { subjects, topics, isLoading, isError, message } = useSelector((state) => state.study);
 
     const [form, setForm] = useState({
@@ -93,6 +95,7 @@ const Topics = () => {
             case 'new': return 'bg-blue-100 text-blue-800';
             case 'learning': return 'bg-yellow-100 text-yellow-800';
             case 'revised': return 'bg-green-100 text-green-800';
+            case 'completed': return 'bg-purple-100 text-purple-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
@@ -140,6 +143,7 @@ const Topics = () => {
                                     <option value="new">New</option>
                                     <option value="learning">Learning</option>
                                     <option value="revised">Revised</option>
+                                    <option value="completed">Completed</option>
                                 </select>
                             </div>
                             <div>

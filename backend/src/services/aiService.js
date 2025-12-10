@@ -7,7 +7,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const generateRoadmap = async (topicName, subjectName, difficulty) => {
     console.log(`[AI Service] generateRoadmap called for: Topic="${topicName}", Subject="${subjectName}", Difficulty="${difficulty}"`);
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `Create a structured study roadmap for the topic "${topicName}" in the subject "${subjectName}". 
         The difficulty level is "${difficulty}".
@@ -47,7 +47,7 @@ const generateRoadmap = async (topicName, subjectName, difficulty) => {
 const generateStepResources = async (stepTitle, topicName, subjectName) => {
     console.log(`[AI Service] generateStepResources called for: Step="${stepTitle}", Topic="${topicName}"`);
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `Find 10 high-quality learning resources for the specific step "${stepTitle}" which is part of learning "${topicName}" in the subject "${subjectName}".
         
@@ -109,7 +109,50 @@ const generateStepResources = async (stepTitle, topicName, subjectName) => {
     }
 };
 
+const generateQuiz = async (topicName, subjectName, stepTitle = null) => {
+    console.log(`[AI Service] generateQuiz called for: Topic="${topicName}", Subject="${subjectName}", Step="${stepTitle || 'N/A'}"`);
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        let promptContext = `Create a quiz for the topic "${topicName}" in the subject "${subjectName}".`;
+        if (stepTitle) {
+            promptContext = `Create a quiz specifically for the subtopic/step "${stepTitle}" which is part of the topic "${topicName}" in the subject "${subjectName}".`;
+        }
+
+        const prompt = `${promptContext}
+        
+        Generate exactly 15 questions:
+        - 5 Easy questions
+        - 5 Medium questions
+        - 5 Hard questions
+        
+        The output must be a valid JSON array of objects.
+        Each object should have:
+        - "question": The question text.
+        - "options": An array of 4 possible answer strings.
+        - "correctAnswer": The index of the correct option (0, 1, 2, or 3).
+        - "difficulty": "easy", "medium", or "hard".
+        
+        Ensure questions are sorted: Easy first, then Medium, then Hard.
+        Do not include any markdown formatting. Just return the raw JSON string.`;
+
+        console.log("[AI Service] Sending quiz prompt to Gemini...");
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        console.log("[AI Service] Quiz generated");
+
+        return JSON.parse(cleanedText);
+    } catch (error) {
+        console.error("AI Quiz Generation Error:", error);
+        throw new Error("Failed to generate quiz via Gemini");
+    }
+};
+
 module.exports = {
     generateRoadmap,
-    generateStepResources
+    generateStepResources,
+    generateQuiz
 };
