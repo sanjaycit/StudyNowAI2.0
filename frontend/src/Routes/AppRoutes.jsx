@@ -10,6 +10,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import ForgotPassword from "../pages/ForgotPassword";
 import StudyPlan from "../pages/StudyPlan";
 import StudySession from "../pages/StudySession";
+import StudyResources from "../pages/StudyResources";
 
 // AppRoutes handles all the main routes for the app
 const AppRoutes = () => {
@@ -64,6 +65,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <StudySession />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/study/:id/resources"
+        element={
+          <ProtectedRoute>
+            <StudyResources />
           </ProtectedRoute>
         }
       />

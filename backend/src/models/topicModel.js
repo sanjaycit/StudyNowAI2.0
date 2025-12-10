@@ -1,5 +1,24 @@
 const mongoose = require('mongoose');
 
+const ResourceSchema = new mongoose.Schema({
+    title: String,
+    type: String,
+    description: String,
+    relevance: Number,
+    url: String
+}, { _id: true });
+
+const RoadmapStepSchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    status: {
+        type: String,
+        enum: ['pending', 'completed'],
+        default: 'pending'
+    },
+    resources: [ResourceSchema]
+}, { _id: true });
+
 const TopicSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -42,15 +61,7 @@ const TopicSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
-    roadmap: [{
-        title: String,
-        description: String,
-        status: {
-            type: String,
-            enum: ['pending', 'completed'],
-            default: 'pending'
-        }
-    }],
+    roadmap: [RoadmapStepSchema],
 }, {
     timestamps: true,
 });

@@ -69,7 +69,20 @@ const generateStepResources = async (stepTitle, topicName, subjectName) => {
         const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
         console.log("[AI Service] Resources generated");
 
-        return JSON.parse(cleanedText);
+        let parsed = JSON.parse(cleanedText);
+
+        // Handle case where AI returns a stringified JSON (double encoded)
+        if (typeof parsed === 'string') {
+            console.log("[AI Service] Parsed result is a string, attempting to parse again...");
+            try {
+                parsed = JSON.parse(parsed);
+            } catch (e) {
+                console.warn("[AI Service] Second parse failed, returning empty array.");
+                return [];
+            }
+        }
+
+        return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
         console.error("AI Resources Generation Error:", error);
         // Fallback or rethrow

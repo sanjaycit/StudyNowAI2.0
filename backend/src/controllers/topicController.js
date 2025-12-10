@@ -202,11 +202,51 @@ const getStepResources = async (req, res) => {
             return res.status(404).json({ message: 'Topic not found' });
         }
 
-        // We don't save these to DB currently, simply fetch on demand for "freshness"
+        // Find the step in the roadmap
+        const step = topic.roadmap.find(s => s.title === stepTitle);
+
+        if (!step) {
+            return res.status(404).json({ message: 'Step not found in roadmap' });
+        }
+
+        // Check if resources already exist
+        if (step.resources && step.resources.length > 0) {
+            console.log(`[Topic Controller] Returning existing resources for step: ${stepTitle}`);
+            return res.status(200).json(step.resources);
+        }
+
+        console.log(`[Topic Controller] Generating new resources for step: ${stepTitle}`);
         const { generateStepResources } = require('../services/aiService');
         const resources = await generateStepResources(stepTitle, topic.name, topic.subject.name);
 
-        res.status(200).json(resources);
+        if (!Array.isArray(resources)) {
+            console.error('[Topic Controller] Critical Error: AI Service returned non-array:', typeof resources);
+            return res.status(500).json({ message: 'Failed to generate valid resources' });
+        }
+
+        console.log(`[Topic Controller] Resources type: ${typeof resources}, isArray: ${Array.isArray(resources)}, Length: ${resources.length}`);
+        if (resources.length > 0) {
+            console.log(`[Topic Controller] First resource sample:`, resources[0]);
+        }
+
+        // Safely set resources
+        // Clear existing if any (though logic above checks length > 0, explicit clear is safer if logic changes)
+        step.resources = [];
+
+        resources.forEach(r => {
+            step.resources.push({
+                title: r.title,
+                type: r.type,
+                description: r.description,
+                relevance: r.relevance,
+                url: r.url
+            });
+        });
+
+        await topic.save();
+        console.log(`[Topic Controller] Saved ${resources.length} resources to DB`);
+
+        res.status(200).json(step.resources);
     } catch (error) {
         console.error('Get Resources Error:', error.message);
         res.status(500).json({ message: 'Server error while fetching resources' });
