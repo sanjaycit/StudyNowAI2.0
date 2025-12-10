@@ -186,39 +186,45 @@ const Topics = () => {
                     <div className="card p-8">
                         <div className="space-y-4">
                             {topics.map((topic) => (
-                                <div key={topic._id} className="p-4 border rounded-xl flex flex-col md:flex-row md:items-center md:justify-between hover:bg-gray-50 transition-colors">
-                                    <div className="flex-1 mb-4 md:mb-0 mr-4">
-                                        <div className='flex justify-between items-center mb-1'>
-                                            <h4 className="text-lg font-semibold text-gray-900">{topic.name}</h4>
-                                            <span className="text-xs text-gray-400">Progress: {calculateProgress(topic)}%</span>
+                                <div key={topic._id} className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center md:justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                                    <div className="flex-1 mb-4 md:mb-0 mr-6">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h4 className="text-xl font-bold text-gray-900">{topic.name}</h4>
+                                            <div className="flex items-center space-x-2">
+                                                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(topic.status)}`}>
+                                                    {topic.status}
+                                                </span>
+                                                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getDifficultyColor(topic.difficulty)}`}>
+                                                    {topic.difficulty}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <p className="text-sm text-gray-600 mb-2">Subject: {topic.subject?.name || 'N/A'}</p>
+                                        <p className="text-sm font-medium text-gray-500 mb-4">{topic.subject?.name || 'N/A'}</p>
 
-                                        <div className="w-full bg-gray-200 rounded-full h-1.5 max-w-md">
+                                        <div className="w-full bg-gray-100 rounded-full h-2">
                                             <div
-                                                className={`h-1.5 rounded-full ${calculateProgress(topic) === 100 ? 'bg-green-500' : 'bg-blue-600'}`}
+                                                className={`h-2 rounded-full transition-all duration-500 ${calculateProgress(topic) === 100 ? 'bg-green-500' : 'bg-gradient-to-r from-blue-500 to-indigo-600'}`}
                                                 style={{ width: `${calculateProgress(topic)}%` }}
                                             ></div>
                                         </div>
+                                        <div className="mt-1 text-right">
+                                            <span className="text-xs font-bold text-gray-500">{calculateProgress(topic)}% Completed</span>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center space-x-4">
-                                        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(topic.status)}`}>
-                                            {topic.status}
-                                        </span>
-                                        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getDifficultyColor(topic.difficulty)}`}>
-                                            {topic.difficulty}
-                                        </span>
+                                    <div className="flex items-center space-x-3 pt-4 md:pt-0 md:border-l md:border-gray-100 md:pl-6">
                                         <button
                                             onClick={() => handleReview(topic._id)}
                                             disabled={isReviewing === topic._id}
-                                            className="btn-primary text-xs py-1 px-3 disabled:bg-gray-400"
+                                            className="px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
                                         >
-                                            {isReviewing === topic._id ? 'Saving...' : 'Mark Reviewed'}
+                                            {isReviewing === topic._id ? 'Saving...' : 'Review'}
                                         </button>
-                                        <div className="flex space-x-2">
-                                            <button onClick={() => handleEdit(topic)} className="text-blue-600 hover:underline">Edit</button>
-                                            <button onClick={() => handleDelete(topic._id)} className="text-red-600 hover:underline">Delete</button>
-                                        </div>
+                                        <button onClick={() => handleEdit(topic)} className="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        </button>
+                                        <button onClick={() => handleDelete(topic._id)} className="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
                                     </div>
                                 </div>
                             ))}

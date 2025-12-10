@@ -62,13 +62,18 @@ const Dashboard = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
-                            <p className="mt-2 text-gray-500">Track your progress and manage your study topics.</p>
+                            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 tracking-tight">Dashboard</h1>
+                            <p className="mt-2 text-gray-500 text-lg">Detailed overview of your study progress.</p>
                         </div>
-                        <div className="mt-4 md:mt-0 flex items-center space-x-3">
-                            <span className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium">
-                                Total Topics: {topics.length}
-                            </span>
+                        <div className="mt-6 md:mt-0 flex gap-4">
+                            <div className="bg-blue-50 px-6 py-3 rounded-2xl border border-blue-100 flex flex-col items-center">
+                                <span className="text-xs text-blue-600 font-bold uppercase tracking-wider">Total</span>
+                                <span className="text-2xl font-bold text-blue-900">{topics.length}</span>
+                            </div>
+                            <div className="bg-green-50 px-6 py-3 rounded-2xl border border-green-100 flex flex-col items-center">
+                                <span className="text-xs text-green-600 font-bold uppercase tracking-wider">Completed</span>
+                                <span className="text-2xl font-bold text-green-900">{completedTopics.length}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -91,23 +96,22 @@ const Dashboard = () => {
                 {/* Topics Board */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden min-h-[600px]">
                     {/* Tabs Header */}
-                    <div className="border-b border-gray-200 bg-gray-50/50">
-                        <div className="flex overflow-x-auto">
+                    <div className="border-b border-gray-100 px-8 pt-6">
+                        <div className="flex space-x-1 bg-gray-100/50 p-1 rounded-xl w-fit">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`
-                                        flex-1 min-w-[150px] py-4 px-6 text-sm font-medium text-center focus:outline-none transition-colors duration-200 border-b-2
+                                        relative px-6 py-2.5 text-sm font-medium rounded-lg transition-all duration-200
                                         ${activeTab === tab.id
-                                            ? 'border-blue-600 text-blue-600 bg-white'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'}
+                                            ? 'bg-white text-blue-600 shadow-sm'
+                                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'}
                                     `}
                                 >
-                                    <div className="flex items-center justify-center space-x-2">
-                                        <span className="text-lg">{tab.icon}</span>
+                                    <div className="flex items-center space-x-2">
                                         <span>{tab.label}</span>
-                                        <span className={`ml-2 py-0.5 px-2.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-600'
+                                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold leading-none ${activeTab === tab.id ? 'bg-blue-50 text-blue-600' : 'bg-gray-200 text-gray-500'
                                             }`}>
                                             {tab.count}
                                         </span>
@@ -150,48 +154,52 @@ const Dashboard = () => {
                                         {currentTopics.map((topic) => (
                                             <div
                                                 key={topic._id}
-                                                className="group bg-white rounded-xl border border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all duration-200 flex flex-col h-full"
+                                                className="group bg-white rounded-2xl border border-gray-100 hover:border-blue-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1"
                                             >
-                                                <div className="p-5 flex-1">
+                                                <div className="p-6 flex-1 flex flex-col">
                                                     <div className="flex justify-between items-start mb-4">
-                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getDifficultyColor(topic.difficulty)}`}>
+                                                        <h3 className="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                                                            {topic.name}
+                                                        </h3>
+                                                        <span className={`flex-shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide border ${getDifficultyColor(topic.difficulty)}`}>
                                                             {topic.difficulty}
                                                         </span>
+                                                    </div>
+
+                                                    <div className="mb-6 flex-1">
                                                         {topic.subject && (
-                                                            <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                                            <p className="text-sm font-medium text-gray-400 mb-4">
                                                                 {topic.subject.name}
-                                                            </span>
+                                                            </p>
                                                         )}
-                                                    </div>
-                                                    <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                                                        {topic.name}
-                                                    </h3>
-                                                    {/* Progress Bar */}
-                                                    <div className="mt-4">
-                                                        <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
-                                                            <span>Progress</span>
-                                                            <span className="font-semibold">{calculateProgress(topic)}%</span>
-                                                        </div>
-                                                        <div className="w-full bg-gray-100 rounded-full h-2">
-                                                            <div
-                                                                className={`h-2 rounded-full transition-all duration-300 ${calculateProgress(topic) === 100 ? 'bg-green-500' : 'bg-blue-600'}`}
-                                                                style={{ width: `${calculateProgress(topic)}%` }}
-                                                            ></div>
+
+                                                        {/* Progress Bar */}
+                                                        <div>
+                                                            <div className="flex justify-between items-end text-xs mb-2">
+                                                                <span className="font-semibold text-gray-600">Progress</span>
+                                                                <span className="font-bold text-blue-600">{calculateProgress(topic)}%</span>
+                                                            </div>
+                                                            <div className="w-full bg-gray-100 rounded-full h-2">
+                                                                <div
+                                                                    className={`h-2 rounded-full transition-all duration-500 ${calculateProgress(topic) === 100 ? 'bg-green-500' : 'bg-gradient-to-r from-blue-500 to-indigo-600'}`}
+                                                                    style={{ width: `${calculateProgress(topic)}%` }}
+                                                                ></div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div className="px-5 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl flex justify-between items-center decoration-gray-900">
-                                                    <div className="text-xs text-gray-500">
-                                                        {topic.status === 'revised' && topic.lastReviewed
-                                                            ? `Last reviewed: ${new Date(topic.lastReviewed).toLocaleDateString()}`
-                                                            : 'Ready to study'}
+
+                                                    <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
+                                                        <span className="text-xs font-medium text-gray-400">
+                                                            {topic.status === 'revised' ? 'Revised' : 'In Progress'}
+                                                        </span>
+                                                        <a
+                                                            href={`/study/${topic._id}`}
+                                                            className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm"
+                                                            title={activeTab === 'completed' ? 'Review Again' : 'Continue Studying'}
+                                                        >
+                                                            <svg className="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                        </a>
                                                     </div>
-                                                    <a
-                                                        href={`/study/${topic._id}`}
-                                                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                                    >
-                                                        {activeTab === 'completed' ? 'Review Again' : 'Continute Studying'}
-                                                    </a>
                                                 </div>
                                             </div>
                                         ))}
