@@ -8,6 +8,7 @@ const {
     deleteTopic,
     reviewTopic,
     generateTopicRoadmap,
+    getStepResources,
 } = require('../controllers/topicController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -35,5 +36,6 @@ router.route('/:id/review').put(protect, reviewTopic);
 // @desc    Generate a study roadmap for a topic
 // @access  Private
 router.route('/:id/roadmap').post(protect, generateTopicRoadmap);
+router.route('/:id/resources').post(protect, getStepResources);
 
 module.exports = router;

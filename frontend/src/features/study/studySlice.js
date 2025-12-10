@@ -111,6 +111,14 @@ export const generateRoadmap = createAsyncThunk('study/generateRoadmap', async (
     }
 });
 
+export const fetchStepResources = createAsyncThunk('study/fetchStepResources', async ({ id, stepTitle }, thunkAPI) => {
+    try {
+        return await studyService.getStepResources(id, stepTitle);
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.toString());
+    }
+});
+
 export const studySlice = createSlice({
     name: 'study',
     initialState,

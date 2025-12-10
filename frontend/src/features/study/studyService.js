@@ -76,6 +76,10 @@ const studyService = {
         const response = await axiosInstance.post(`/api/topics/${id}/roadmap`);
         return response.data;
     },
+    getStepResources: async (id, stepTitle) => {
+        const response = await axiosInstance.post(`/api/topics/${id}/resources`, { stepTitle });
+        return response.data;
+    },
 };
 
 export default studyService; 

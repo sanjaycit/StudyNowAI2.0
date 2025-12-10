@@ -1,14 +1,20 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { getTopic, generateRoadmap, reset } from '../features/study/studySlice';
+import { getTopic, generateRoadmap, reset, fetchStepResources } from '../features/study/studySlice';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
+import ResourcesModal from '../components/ResourcesModal';
 
 const StudySession = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [activeStep, setActiveStep] = useState('');
+    const [stepResources, setStepResources] = useState([]);
+    const [isLoadingResources, setIsLoadingResources] = useState(false);
 
     const { currentTopic, isLoading, isError, message } = useSelector((state) => state.study);
 
@@ -28,6 +34,23 @@ const StudySession = () => {
         } catch (error) {
             console.error("Roadmap generation failed:", error);
             toast.error('Failed to generate roadmap: ' + error);
+        }
+    };
+
+    const handleStartStep = async (stepTitle) => {
+        setActiveStep(stepTitle);
+        setIsModalOpen(true);
+        setIsLoadingResources(true);
+        setStepResources([]);
+
+        try {
+            const result = await dispatch(fetchStepResources({ id, stepTitle })).unwrap();
+            setStepResources(result);
+        } catch (error) {
+            console.error("Failed to fetch resources:", error);
+            toast.error('Failed to fetch resources for this step.');
+        } finally {
+            setIsLoadingResources(false);
         }
     };
 
@@ -57,6 +80,14 @@ const StudySession = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 pb-12">
+            <ResourcesModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                resources={stepResources}
+                isLoading={isLoadingResources}
+                stepTitle={activeStep}
+            />
+
             <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
                 <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
                     <div className="flex items-center space-x-4">
@@ -147,7 +178,7 @@ const StudySession = () => {
 
                                                     <button
                                                         className="md:self-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-300 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 min-w-[140px] cursor-pointer"
-                                                        onClick={() => toast('Starting study session...', { icon: '🚀' })}
+                                                        onClick={() => handleStartStep(step.title)}
                                                     >
                                                         <span>Start</span>
                                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

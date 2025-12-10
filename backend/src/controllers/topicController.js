@@ -193,6 +193,26 @@ const generateTopicRoadmap = async (req, res) => {
     }
 };
 
+const getStepResources = async (req, res) => {
+    const { stepTitle } = req.body;
+    try {
+        const topic = await Topic.findById(req.params.id).populate('subject');
+
+        if (!topic) {
+            return res.status(404).json({ message: 'Topic not found' });
+        }
+
+        // We don't save these to DB currently, simply fetch on demand for "freshness"
+        const { generateStepResources } = require('../services/aiService');
+        const resources = await generateStepResources(stepTitle, topic.name, topic.subject.name);
+
+        res.status(200).json(resources);
+    } catch (error) {
+        console.error('Get Resources Error:', error.message);
+        res.status(500).json({ message: 'Server error while fetching resources' });
+    }
+};
+
 module.exports = {
     getTopics,
     getTopic,
@@ -201,4 +221,5 @@ module.exports = {
     deleteTopic,
     reviewTopic,
     generateTopicRoadmap,
+    getStepResources,
 };
