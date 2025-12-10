@@ -16,6 +16,13 @@ const Dashboard = () => {
     const newTopics = topics.filter(t => t.status === 'new');
     const learningTopics = topics.filter(t => t.status === 'learning');
     const revisedTopics = topics.filter(t => t.status === 'revised');
+    const completedTopics = topics.filter(t => t.status === 'completed');
+
+    const calculateProgress = (topic) => {
+        if (!topic.roadmap || topic.roadmap.length === 0) return 0;
+        const completedSteps = topic.roadmap.filter(step => step.status === 'completed').length;
+        return Math.round((completedSteps / topic.roadmap.length) * 100);
+    };
 
     const getDifficultyColor = (difficulty) => {
         switch (difficulty) {
@@ -30,11 +37,13 @@ const Dashboard = () => {
         { id: 'new', label: 'New Topics', count: newTopics.length, icon: '🆕' },
         { id: 'learning', label: 'Learning', count: learningTopics.length, icon: '📖' },
         { id: 'revise', label: 'Revise', count: revisedTopics.length, icon: '✅' },
+        { id: 'completed', label: 'Completed', count: completedTopics.length, icon: '🏆' },
     ];
 
     const currentTopics = activeTab === 'new' ? newTopics
         : activeTab === 'learning' ? learningTopics
-            : revisedTopics;
+            : activeTab === 'revise' ? revisedTopics
+                : completedTopics;
 
     if (isLoading) {
         return (
@@ -122,7 +131,7 @@ const Dashboard = () => {
                                     <div className="text-center py-20">
                                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-4">
                                             <span className="text-4xl opacity-50">
-                                                {activeTab === 'new' ? '📝' : activeTab === 'learning' ? '🤔' : '🎉'}
+                                                {activeTab === 'new' ? '📝' : activeTab === 'learning' ? '🤔' : activeTab === 'completed' ? '🏆' : '🎉'}
                                             </span>
                                         </div>
                                         <h3 className="text-lg font-medium text-gray-900 mb-2">No topics found</h3>
@@ -131,7 +140,9 @@ const Dashboard = () => {
                                                 ? 'You have no new topics. Start by adding some in the Topics selection!'
                                                 : activeTab === 'learning'
                                                     ? 'You are not currently learning any topics. Pick one from "New" to start.'
-                                                    : 'You haven\'t revised any topics yet. Keep studying!'}
+                                                    : activeTab === 'completed'
+                                                        ? 'You haven\'t completed any topics yet. Keep going!'
+                                                        : 'You haven\'t revised any topics yet. Keep studying!'}
                                         </p>
                                     </div>
                                 ) : (
@@ -155,6 +166,19 @@ const Dashboard = () => {
                                                     <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                                                         {topic.name}
                                                     </h3>
+                                                    {/* Progress Bar */}
+                                                    <div className="mt-4">
+                                                        <div className="flex justify-between items-center text-xs text-gray-500 mb-1">
+                                                            <span>Progress</span>
+                                                            <span className="font-semibold">{calculateProgress(topic)}%</span>
+                                                        </div>
+                                                        <div className="w-full bg-gray-100 rounded-full h-2">
+                                                            <div
+                                                                className={`h-2 rounded-full transition-all duration-300 ${calculateProgress(topic) === 100 ? 'bg-green-500' : 'bg-blue-600'}`}
+                                                                style={{ width: `${calculateProgress(topic)}%` }}
+                                                            ></div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div className="px-5 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl flex justify-between items-center decoration-gray-900">
                                                     <div className="text-xs text-gray-500">
@@ -166,7 +190,7 @@ const Dashboard = () => {
                                                         href={`/study/${topic._id}`}
                                                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                                     >
-                                                        Start Study
+                                                        {activeTab === 'completed' ? 'Review Again' : 'Continute Studying'}
                                                     </a>
                                                 </div>
                                             </div>

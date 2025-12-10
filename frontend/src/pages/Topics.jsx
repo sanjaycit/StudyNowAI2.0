@@ -90,6 +90,12 @@ const Topics = () => {
         }
     };
 
+    const calculateProgress = (topic) => {
+        if (!topic.roadmap || topic.roadmap.length === 0) return 0;
+        const completedSteps = topic.roadmap.filter(step => step.status === 'completed').length;
+        return Math.round((completedSteps / topic.roadmap.length) * 100);
+    };
+
     const getStatusColor = (status) => {
         switch (status) {
             case 'new': return 'bg-blue-100 text-blue-800';
@@ -181,9 +187,19 @@ const Topics = () => {
                         <div className="space-y-4">
                             {topics.map((topic) => (
                                 <div key={topic._id} className="p-4 border rounded-xl flex flex-col md:flex-row md:items-center md:justify-between hover:bg-gray-50 transition-colors">
-                                    <div className="flex-1 mb-4 md:mb-0">
-                                        <h4 className="text-lg font-semibold text-gray-900">{topic.name}</h4>
-                                        <p className="text-sm text-gray-600">Subject: {topic.subject?.name || 'N/A'}</p>
+                                    <div className="flex-1 mb-4 md:mb-0 mr-4">
+                                        <div className='flex justify-between items-center mb-1'>
+                                            <h4 className="text-lg font-semibold text-gray-900">{topic.name}</h4>
+                                            <span className="text-xs text-gray-400">Progress: {calculateProgress(topic)}%</span>
+                                        </div>
+                                        <p className="text-sm text-gray-600 mb-2">Subject: {topic.subject?.name || 'N/A'}</p>
+
+                                        <div className="w-full bg-gray-200 rounded-full h-1.5 max-w-md">
+                                            <div
+                                                className={`h-1.5 rounded-full ${calculateProgress(topic) === 100 ? 'bg-green-500' : 'bg-blue-600'}`}
+                                                style={{ width: `${calculateProgress(topic)}%` }}
+                                            ></div>
+                                        </div>
                                     </div>
                                     <div className="flex items-center space-x-4">
                                         <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(topic.status)}`}>
