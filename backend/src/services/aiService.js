@@ -49,7 +49,7 @@ const generateStepResources = async (stepTitle, topicName, subjectName) => {
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-        const prompt = `Find 5 high-quality learning resources for the specific step "${stepTitle}" which is part of learning "${topicName}" in the subject "${subjectName}".
+        const prompt = `Find 10 high-quality learning resources for the specific step "${stepTitle}" which is part of learning "${topicName}" in the subject "${subjectName}".
         
         Provide a variety of resources (Articles, YouTube Videos, Documentation, Interactive Tutorials).
         
@@ -58,7 +58,8 @@ const generateStepResources = async (stepTitle, topicName, subjectName) => {
         - "type": "Article", "Video", "Documentation", or "Course".
         - "description": A very brief 1-sentence reason why this is good.
         - "relevance": A number between 80 and 99 representing the percentage recommendation score (e.g. 95).
-        - "url": A specific valid URL if you are certain it exists (like a specific MDN page, Youtube video, or Wikipedia article). If you are not 100% sure of the exact deep-link, provide the main domain or set to null.
+        - "search_query": A highly optimized Google search query to find this exact resource or very similar ones.
+        - "url": A specific valid URL ONLY if you are 100% certain it exists and is stable (like a specific MDN page, Youtube video, or Wikipedia article). If you are not 100% sure, Set this to null.
         
         Output must be a valid JSON array of objects. Do not include markdown formatting.`;
 
@@ -82,7 +83,25 @@ const generateStepResources = async (stepTitle, topicName, subjectName) => {
             }
         }
 
-        return Array.isArray(parsed) ? parsed : [];
+        const resources = Array.isArray(parsed) ? parsed : [];
+
+        // Post-processing to ensure working links
+        return resources.map(resource => {
+            let finalUrl = resource.url;
+
+            // If URL is missing, 'null', or we want to be safe, use search query
+            // We check for string "null" because AI sometimes outputs it as a string
+            if (!finalUrl || finalUrl === 'null') {
+                const query = resource.search_query || `${resource.title} ${topicName} ${subjectName}`;
+                finalUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+            }
+
+            return {
+                ...resource,
+                url: finalUrl
+            };
+        });
+
     } catch (error) {
         console.error("AI Resources Generation Error:", error);
         // Fallback or rethrow
