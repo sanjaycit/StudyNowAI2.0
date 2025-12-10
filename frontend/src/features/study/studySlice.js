@@ -4,6 +4,7 @@ import studyService from './studyService';
 const initialState = {
     subjects: [],
     topics: [],
+    currentTopic: null,
     aiSchedule: [],
     isLoading: false,
     isError: false,
@@ -94,6 +95,22 @@ export const reviewTopic = createAsyncThunk('study/reviewTopic', async (id, thun
     }
 });
 
+export const getTopic = createAsyncThunk('study/getTopic', async (id, thunkAPI) => {
+    try {
+        return await studyService.getTopic(id);
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.toString());
+    }
+});
+
+export const generateRoadmap = createAsyncThunk('study/generateRoadmap', async (id, thunkAPI) => {
+    try {
+        return await studyService.generateRoadmap(id);
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.toString());
+    }
+});
+
 export const studySlice = createSlice({
     name: 'study',
     initialState,
@@ -164,6 +181,21 @@ export const studySlice = createSlice({
             .addCase(reviewTopic.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isSuccess = true;
+                const index = state.topics.findIndex(t => t._id === action.payload._id);
+                if (index !== -1) {
+                    state.topics[index] = action.payload;
+                }
+            })
+            .addCase(getTopic.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isSuccess = true;
+                state.currentTopic = action.payload;
+            })
+            .addCase(generateRoadmap.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isSuccess = true;
+                state.currentTopic = action.payload;
+                // Update in topics list as well if exists
                 const index = state.topics.findIndex(t => t._id === action.payload._id);
                 if (index !== -1) {
                     state.topics[index] = action.payload;

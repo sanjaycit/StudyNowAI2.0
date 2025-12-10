@@ -68,6 +68,14 @@ const studyService = {
         const response = await axiosInstance.put(`/api/topics/${id}/review`);
         return response.data;
     },
+    getTopic: async (id) => {
+        const response = await axiosInstance.get(`/api/topics/${id}`);
+        return response.data;
+    },
+    generateRoadmap: async (id) => {
+        const response = await axiosInstance.post(`/api/topics/${id}/roadmap`);
+        return response.data;
+    },
 };
 
 export default studyService; 

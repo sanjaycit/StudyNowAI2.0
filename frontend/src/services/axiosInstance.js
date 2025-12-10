@@ -5,7 +5,7 @@ import axios from 'axios';
 // Note: Backend routes already include /api/ prefix, so we don't add it here
 const axiosInstance = axios.create({
     baseURL: 'http://localhost:5000',
-    timeout: 10000,
+    timeout: 1000000,
     headers: {
         'Content-Type': 'application/json',
     }

@@ -1,5 +1,6 @@
 const Topic = require('../models/topicModel');
 const { calculateNextReviewDate } = require('../services/studyService');
+const { generateRoadmap } = require('../services/aiService');
 
 // @desc    Get all topics for a user
 // @route   GET /api/topics
@@ -148,6 +149,50 @@ const reviewTopic = async (req, res) => {
     }
 };
 
+
+
+// @desc    Generate a roadmap for a topic using AI
+// @route   POST /api/topics/:id/roadmap
+// @access  Private
+const generateTopicRoadmap = async (req, res) => {
+    console.log(`[Topic Controller] generateTopicRoadmap called for ID: ${req.params.id}`);
+    try {
+        const topic = await Topic.findById(req.params.id).populate('subject');
+
+        if (!topic) {
+            console.log("[Topic Controller] Topic not found");
+            return res.status(404).json({ message: 'Topic not found' });
+        }
+
+        if (topic.user.toString() !== req.user.id) {
+            console.log("[Topic Controller] Unauthorized access");
+            return res.status(401).json({ message: 'Unauthorized access' });
+        }
+
+        if (topic.roadmap && topic.roadmap.length > 0) {
+            console.log("[Topic Controller] Returning existing roadmap");
+            return res.status(200).json(topic); // Return existing roadmap if available
+        }
+
+        console.log("[Topic Controller] Calling AI service...");
+        const roadmapData = await generateRoadmap(topic.name, topic.subject.name, topic.difficulty);
+        console.log(`[Topic Controller] Roadmap data received: ${JSON.stringify(roadmapData).substring(0, 100)}...`);
+
+        topic.roadmap = roadmapData.map(step => ({
+            ...step,
+            status: 'pending'
+        }));
+
+        await topic.save();
+        console.log("[Topic Controller] Topic saved with new roadmap");
+        res.status(200).json(topic);
+
+    } catch (error) {
+        console.error('Generate Roadmap Error:', error.message);
+        res.status(500).json({ message: 'Server error while generating roadmap' });
+    }
+};
+
 module.exports = {
     getTopics,
     getTopic,
@@ -155,4 +200,5 @@ module.exports = {
     updateTopic,
     deleteTopic,
     reviewTopic,
+    generateTopicRoadmap,
 };

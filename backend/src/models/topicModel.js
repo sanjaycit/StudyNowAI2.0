@@ -42,6 +42,15 @@ const TopicSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    roadmap: [{
+        title: String,
+        description: String,
+        status: {
+            type: String,
+            enum: ['pending', 'completed'],
+            default: 'pending'
+        }
+    }],
 }, {
     timestamps: true,
 });

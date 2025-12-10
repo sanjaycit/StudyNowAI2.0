@@ -9,6 +9,7 @@ import Settings from "../pages/Settings";
 import ProtectedRoute from "../components/ProtectedRoute";
 import ForgotPassword from "../pages/ForgotPassword";
 import StudyPlan from "../pages/StudyPlan";
+import StudySession from "../pages/StudySession";
 
 // AppRoutes handles all the main routes for the app
 const AppRoutes = () => {
@@ -54,6 +55,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <StudyPlan />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/study/:id"
+        element={
+          <ProtectedRoute>
+            <StudySession />
           </ProtectedRoute>
         }
       />

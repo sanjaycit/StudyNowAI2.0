@@ -7,6 +7,7 @@ const {
     updateTopic,
     deleteTopic,
     reviewTopic,
+    generateTopicRoadmap,
 } = require('../controllers/topicController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -29,5 +30,10 @@ router.route('/:id')
 // @desc    Mark a topic as reviewed
 // @access  Private
 router.route('/:id/review').put(protect, reviewTopic);
+
+// @route   POST /api/topics/:id/roadmap
+// @desc    Generate a study roadmap for a topic
+// @access  Private
+router.route('/:id/roadmap').post(protect, generateTopicRoadmap);
 
 module.exports = router;
