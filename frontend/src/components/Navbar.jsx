@@ -39,51 +39,46 @@ const Navbar = () => {
                     <div className="hidden md:flex items-center space-x-1">
                         <Link
                             to="/dashboard"
-                            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
-                                isActive('/dashboard')
-                                    ? 'bg-blue-600 text-white shadow-lg'
-                                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                            }`}
+                            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${isActive('/dashboard')
+                                ? 'bg-blue-600 text-white shadow-lg'
+                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                }`}
                         >
                             Dashboard
                         </Link>
                         <Link
                             to="/study-plan"
-                            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
-                                isActive('/study-plan')
-                                    ? 'bg-blue-600 text-white shadow-lg'
-                                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                            }`}
+                            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${isActive('/study-plan')
+                                ? 'bg-blue-600 text-white shadow-lg'
+                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                }`}
                         >
-                            Study Plan
+                            Progress
                         </Link>
                         <Link
                             to="/subjects"
-                            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
-                                isActive('/subjects')
-                                    ? 'bg-blue-600 text-white shadow-lg'
-                                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                            }`}
+                            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${isActive('/subjects')
+                                ? 'bg-blue-600 text-white shadow-lg'
+                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                }`}
                         >
                             Subjects
                         </Link>
                         <Link
                             to="/topics"
-                            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
-                                isActive('/topics')
-                                    ? 'bg-blue-600 text-white shadow-lg'
-                                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                            }`}
+                            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${isActive('/topics')
+                                ? 'bg-blue-600 text-white shadow-lg'
+                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                }`}
                         >
                             Topics
                         </Link>
                         <Link
                             to="/settings"
-                            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
-                                isActive('/settings')
-                                    ? 'bg-blue-600 text-white shadow-lg'
-                                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                            }`}
+                            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${isActive('/settings')
+                                ? 'bg-blue-600 text-white shadow-lg'
+                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                }`}
                         >
                             Settings
                         </Link>
@@ -110,51 +105,46 @@ const Navbar = () => {
                 <div className="flex justify-around py-2">
                     <Link
                         to="/dashboard"
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            isActive('/dashboard')
-                                ? 'bg-blue-600 text-white'
-                                : 'text-gray-700 hover:bg-blue-50'
-                        }`}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive('/dashboard')
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-700 hover:bg-blue-50'
+                            }`}
                     >
                         Dashboard
                     </Link>
                     <Link
                         to="/study-plan"
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            isActive('/study-plan')
-                                ? 'bg-blue-600 text-white'
-                                : 'text-gray-700 hover:bg-blue-50'
-                        }`}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive('/study-plan')
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-700 hover:bg-blue-50'
+                            }`}
                     >
-                        Study Plan
+                        Progress
                     </Link>
                     <Link
                         to="/subjects"
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            isActive('/subjects')
-                                ? 'bg-blue-600 text-white'
-                                : 'text-gray-700 hover:bg-blue-50'
-                        }`}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive('/subjects')
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-700 hover:bg-blue-50'
+                            }`}
                     >
                         Subjects
                     </Link>
                     <Link
                         to="/topics"
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            isActive('/topics')
-                                ? 'bg-blue-600 text-white'
-                                : 'text-gray-700 hover:bg-blue-50'
-                        }`}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive('/topics')
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-700 hover:bg-blue-50'
+                            }`}
                     >
                         Topics
                     </Link>
                     <Link
                         to="/settings"
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            isActive('/settings')
-                                ? 'bg-blue-600 text-white'
-                                : 'text-gray-700 hover:bg-blue-50'
-                        }`}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive('/settings')
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-700 hover:bg-blue-50'
+                            }`}
                     >
                         Settings
                     </Link>

@@ -17,11 +17,11 @@ import {
 
 const StudyPlan = () => {
     const dispatch = useDispatch();
-    const { 
-        aiSchedule: studyPlan, 
-        isLoading: loading, 
-        isError, 
-        message 
+    const {
+        aiSchedule: studyPlan,
+        isLoading: loading,
+        isError,
+        message
     } = useSelector((state) => state.study);
 
     const error = isError ? message : '';
@@ -50,7 +50,7 @@ const StudyPlan = () => {
 
     const COLORS = ['#FF6384', '#36A2EB', '#4BC0C0'];
     const DIFFICULTY_COLORS = ['#10B981', '#F59E0B', '#EF4444'];
-    
+
     const statusChartData = Object.keys(statusCounts).map((key) => ({
         name: key.charAt(0).toUpperCase() + key.slice(1),
         value: statusCounts[key],
@@ -96,7 +96,7 @@ const StudyPlan = () => {
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                        Your AI Study Plan 🧠
+                        Your Study Progress 🧠
                     </h1>
                     <p className="text-gray-600 text-lg">
                         Personalized study schedule optimized for your learning goals
@@ -153,7 +153,7 @@ const StudyPlan = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="card p-6">
                                 <div className="flex items-center">
                                     <div className="p-2 bg-green-100 rounded-lg">
@@ -165,7 +165,7 @@ const StudyPlan = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="card p-6">
                                 <div className="flex items-center">
                                     <div className="p-2 bg-yellow-100 rounded-lg">
