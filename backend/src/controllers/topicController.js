@@ -7,6 +7,16 @@ const { generateRoadmap, generateQuiz } = require('../services/aiService');
 // @access  Private
 const getTopics = async (req, res) => {
     try {
+        // Auto-update: Move 'new' topics with generated roadmap to 'learning'
+        await Topic.updateMany(
+            {
+                user: req.user.id,
+                status: 'new',
+                'roadmap.0': { $exists: true }
+            },
+            { $set: { status: 'learning' } }
+        );
+
         const topics = await Topic.find({ user: req.user.id }).populate('subject', 'name');
         res.status(200).json(topics);
     } catch (error) {
@@ -169,6 +179,13 @@ const generateTopicRoadmap = async (req, res) => {
 
         if (topic.roadmap && topic.roadmap.length > 0) {
             console.log("[Topic Controller] Returning existing roadmap");
+
+            // Ensure status is updated if it was stuck in 'new'
+            if (topic.status === 'new') {
+                topic.status = 'learning';
+                await topic.save();
+            }
+
             return res.status(200).json(topic); // Return existing roadmap if available
         }
 
@@ -180,6 +197,10 @@ const generateTopicRoadmap = async (req, res) => {
             ...step,
             status: 'pending'
         }));
+
+        if (topic.status === 'new') {
+            topic.status = 'learning';
+        }
 
         await topic.save();
         console.log("[Topic Controller] Topic saved with new roadmap");

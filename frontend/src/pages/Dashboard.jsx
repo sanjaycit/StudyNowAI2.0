@@ -190,7 +190,7 @@ const Dashboard = () => {
 
                                                     <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
                                                         <span className="text-xs font-medium text-gray-400">
-                                                            {topic.status === 'revised' ? 'Revised' : 'In Progress'}
+                                                            {topic.status === 'revised' ? 'Revised' : topic.status === 'new' ? 'New' : topic.status === 'completed' ? 'Completed' : 'In Progress'}
                                                         </span>
                                                         <a
                                                             href={`/study/${topic._id}`}
