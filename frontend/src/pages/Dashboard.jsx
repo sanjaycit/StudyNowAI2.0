@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getTopics, getSubjects } from '../features/study/studySlice';
+import { getTopics, getSubjects, getAIStudySchedule } from '../features/study/studySlice';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Dashboard = () => {
     const dispatch = useDispatch();
-    const { topics, isLoading, isError, message } = useSelector((state) => state.study);
-    const [activeTab, setActiveTab] = useState('new');
+    const { topics, aiSchedule, isLoading, isError, message } = useSelector((state) => state.study);
+    const [activeTab, setActiveTab] = useState('scheduled');
 
     useEffect(() => {
         dispatch(getTopics());
         dispatch(getSubjects());
+        dispatch(getAIStudySchedule());
     }, [dispatch]);
 
     const newTopics = topics.filter(t => t.status === 'new');
@@ -33,19 +34,34 @@ const Dashboard = () => {
         }
     };
 
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'new': return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'learning': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'revised': return 'bg-green-100 text-green-800 border-green-200';
+            default: return 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+    };
+
+    const isReviewOverdue = (nextReviewDate) => {
+        return nextReviewDate && new Date(nextReviewDate) < new Date();
+    };
+
     const tabs = [
+        { id: 'scheduled', label: "Today's Plan", count: aiSchedule.length, icon: '📅' },
         { id: 'new', label: 'New Topics', count: newTopics.length, icon: '🆕' },
         { id: 'learning', label: 'Learning', count: learningTopics.length, icon: '📖' },
         { id: 'revise', label: 'Revise', count: revisedTopics.length, icon: '✅' },
         { id: 'completed', label: 'Completed', count: completedTopics.length, icon: '🏆' },
     ];
 
-    const currentTopics = activeTab === 'new' ? newTopics
-        : activeTab === 'learning' ? learningTopics
-            : activeTab === 'revise' ? revisedTopics
-                : completedTopics;
+    const currentTopics = activeTab === 'scheduled' ? aiSchedule
+        : activeTab === 'new' ? newTopics
+            : activeTab === 'learning' ? learningTopics
+                : activeTab === 'revise' ? revisedTopics
+                    : completedTopics;
 
-    if (isLoading) {
+    if (isLoading && !topics.length && !aiSchedule.length) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
@@ -135,7 +151,7 @@ const Dashboard = () => {
                                     <div className="text-center py-20">
                                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-4">
                                             <span className="text-4xl opacity-50">
-                                                {activeTab === 'new' ? '📝' : activeTab === 'learning' ? '🤔' : activeTab === 'completed' ? '🏆' : '🎉'}
+                                                {activeTab === 'new' ? '📝' : activeTab === 'learning' ? '🤔' : activeTab === 'completed' ? '🏆' : activeTab === 'scheduled' ? '📅' : '🎉'}
                                             </span>
                                         </div>
                                         <h3 className="text-lg font-medium text-gray-900 mb-2">No topics found</h3>
@@ -144,9 +160,11 @@ const Dashboard = () => {
                                                 ? 'You have no new topics. Start by adding some in the Topics selection!'
                                                 : activeTab === 'learning'
                                                     ? 'You are not currently learning any topics. Pick one from "New" to start.'
-                                                    : activeTab === 'completed'
-                                                        ? 'You haven\'t completed any topics yet. Keep going!'
-                                                        : 'You haven\'t revised any topics yet. Keep studying!'}
+                                                    : activeTab === 'scheduled'
+                                                        ? 'No study tasks scheduled for today. Good job!'
+                                                        : activeTab === 'completed'
+                                                            ? 'You haven\'t completed any topics yet. Keep going!'
+                                                            : 'You haven\'t revised any topics yet. Keep studying!'}
                                         </p>
                                     </div>
                                 ) : (

@@ -84,7 +84,7 @@ const StudyPlan = () => {
             <div className="gradient-bg min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600 text-lg">Loading your study plan...</p>
+                    <p className="text-gray-600 text-lg">Loading your progress...</p>
                 </div>
             </div>
         );
@@ -225,50 +225,7 @@ const StudyPlan = () => {
                             </div>
                         </div>
 
-                        {/* Study Plan List */}
-                        <div className="card p-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-6">Today's Study Plan</h3>
-                            <div className="space-y-4">
-                                {studyPlan.map((topic, index) => (
-                                    <div key={topic._id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                                <div className="flex items-center space-x-3 mb-2">
-                                                    <span className="text-lg font-bold text-blue-600">#{index + 1}</span>
-                                                    <h4 className="text-lg font-semibold text-gray-900">{topic.name}</h4>
-                                                    {isReviewOverdue(topic.nextReviewDate) && (
-                                                        <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
-                                                            Overdue
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <p className="text-gray-600 mb-3">
-                                                    Subject: <span className="font-medium">{topic.subject?.name || 'Unknown'}</span>
-                                                </p>
-                                                <div className="flex items-center space-x-4">
-                                                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(topic.status)}`}>
-                                                        {topic.status.charAt(0).toUpperCase() + topic.status.slice(1)}
-                                                    </span>
-                                                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getDifficultyColor(topic.difficulty)}`}>
-                                                        {topic.difficulty.charAt(0).toUpperCase() + topic.difficulty.slice(1)}
-                                                    </span>
-                                                    <span className="text-sm text-gray-500">
-                                                        Priority: {topic.priorityScore?.toFixed(1) || 'N/A'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                {topic.nextReviewDate && (
-                                                    <div className="text-sm text-gray-500">
-                                                        Next Review: {new Date(topic.nextReviewDate).toLocaleDateString()}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+
                     </>
                 )}
             </div>

@@ -13,6 +13,10 @@
     @apply bg-gray-50 text-gray-900;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
+
+  button, [type='button'], [type='reset'], [type='submit'] {
+    @apply cursor-pointer;
+  }
 }
 
 @layer components {
