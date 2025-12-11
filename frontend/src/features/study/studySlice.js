@@ -6,6 +6,7 @@ const initialState = {
     topics: [],
     currentTopic: null,
     aiSchedule: [],
+    fullSchedule: null,
     isLoading: false,
     isError: false,
     isSuccess: false,
@@ -19,6 +20,14 @@ const initialState = {
 export const getAIStudySchedule = createAsyncThunk('study/getSchedule', async (_, thunkAPI) => {
     try {
         return await studyService.getStudySchedule();
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.toString());
+    }
+});
+
+export const getFullSchedule = createAsyncThunk('study/getFullSchedule', async (_, thunkAPI) => {
+    try {
+        return await studyService.getFullSchedule();
     } catch (error) {
         return thunkAPI.rejectWithValue(error.toString());
     }
@@ -175,6 +184,11 @@ export const studySlice = createSlice({
                 state.isLoading = false;
                 state.isSuccess = true;
                 state.aiSchedule = action.payload;
+            })
+            .addCase(getFullSchedule.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isSuccess = true;
+                state.fullSchedule = action.payload;
             })
             // Subjects
             .addCase(getSubjects.fulfilled, (state, action) => {

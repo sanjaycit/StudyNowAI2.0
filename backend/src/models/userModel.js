@@ -42,6 +42,9 @@ const userSchema = new mongoose.Schema({
             enum: ['30 minutes', '1 hour', '2 hours', '3 hours', '4+ hours'],
             default: '1 hour'
         },
+        topicsPerDay: {
+            type: Number
+        },
         reminderTime: {
             type: String,
             default: '09:00'
@@ -56,6 +59,13 @@ const userSchema = new mongoose.Schema({
             enum: ['Standard', 'Frequent', 'Intensive'],
             default: 'Standard'
         }
+    },
+    credits: {
+        type: Number,
+        default: 0
+    },
+    lastScheduleCheck: {
+        type: Date
     },
     emailNotificationsEnabled: {
         type: Boolean,

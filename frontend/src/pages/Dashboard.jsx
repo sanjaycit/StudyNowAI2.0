@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getTopics, getSubjects, getAIStudySchedule } from '../features/study/studySlice';
+import { getProfile } from '../features/auth/authSlice';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Dashboard = () => {
     const dispatch = useDispatch();
     const { topics, aiSchedule, isLoading, isError, message } = useSelector((state) => state.study);
+    const { user } = useSelector((state) => state.auth);
     const [activeTab, setActiveTab] = useState('scheduled');
 
     useEffect(() => {
         dispatch(getTopics());
         dispatch(getSubjects());
         dispatch(getAIStudySchedule());
+        dispatch(getProfile()); // Refresh user data to get latest credits
     }, [dispatch]);
 
     const newTopics = topics.filter(t => t.status === 'new');
@@ -89,6 +92,10 @@ const Dashboard = () => {
                             <div className="bg-green-50 px-6 py-3 rounded-2xl border border-green-100 flex flex-col items-center">
                                 <span className="text-xs text-green-600 font-bold uppercase tracking-wider">Completed</span>
                                 <span className="text-2xl font-bold text-green-900">{completedTopics.length}</span>
+                            </div>
+                            <div className="bg-purple-50 px-6 py-3 rounded-2xl border border-purple-100 flex flex-col items-center">
+                                <span className="text-xs text-purple-600 font-bold uppercase tracking-wider">Credits</span>
+                                <span className="text-2xl font-bold text-purple-900">{user?.credits || 0}</span>
                             </div>
                         </div>
                     </div>
@@ -182,6 +189,14 @@ const Dashboard = () => {
                                                         <span className={`flex-shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide border ${getDifficultyColor(topic.difficulty)}`}>
                                                             {topic.difficulty}
                                                         </span>
+                                                        {topic.rescheduled && (
+                                                            <span
+                                                                title={topic.scheduleHistory && topic.scheduleHistory.length > 0 ? topic.scheduleHistory[topic.scheduleHistory.length - 1].reason : 'Rescheduled'}
+                                                                className="flex-shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide border bg-orange-100 text-orange-800 border-orange-200 ml-2 cursor-help"
+                                                            >
+                                                                Rescheduled
+                                                            </span>
+                                                        )}
                                                     </div>
 
                                                     <div className="mb-6 flex-1">

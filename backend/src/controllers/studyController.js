@@ -1,7 +1,7 @@
-const { getStudySchedule: getSchedule } = require('../services/studyService');
+const { getStudySchedule: getSchedule, getFullSchedule: getFull } = require('../services/studyService');
 
 // @desc    Get AI-generated study schedule for logged-in user
-// @route   GET /api/study
+// @route   GET /api/study/schedule
 // @access  Private
 const getStudySchedule = async (req, res) => {
     try {
@@ -18,6 +18,20 @@ const getStudySchedule = async (req, res) => {
     }
 };
 
+// @desc    Get full upcoming schedule grouped by date
+// @route   GET /api/study/schedule/full
+// @access  Private
+const getFullSchedule = async (req, res) => {
+    try {
+        const scheduleMap = await getFull(req.user.id);
+        res.status(200).json(scheduleMap);
+    } catch (error) {
+        console.error('Error fetching full schedule:', error.message);
+        res.status(500).json({ message: 'Failed to fetch full schedule' });
+    }
+};
+
 module.exports = {
     getStudySchedule,
+    getFullSchedule
 };

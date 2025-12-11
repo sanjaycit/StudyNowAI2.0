@@ -382,6 +382,8 @@ const submitTopicQuiz = async (req, res) => {
 
         // Mark topic as completed
         topic.status = 'completed';
+        topic.completionPercent = 100;
+
 
         await topic.save();
 
@@ -532,7 +534,13 @@ const submitStepQuiz = async (req, res) => {
         let topicJustCompleted = false;
         if (allStepsCompleted && topic.status !== 'completed') {
             topic.status = 'completed';
+            topic.completionPercent = 100;
             topicJustCompleted = true;
+        } else {
+            // Update completion percent based on steps
+            const completedSteps = topic.roadmap.filter(s => s.status === 'completed').length;
+            const totalSteps = topic.roadmap.length;
+            topic.completionPercent = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
         }
 
         await topic.save();

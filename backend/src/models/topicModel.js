@@ -62,6 +62,28 @@ const TopicSchema = new mongoose.Schema({
         enum: ['easy', 'medium', 'hard'],
         default: 'medium',
     },
+    completionPercent: {
+        type: Number,
+        default: 0
+    },
+    scheduledDate: {
+        type: Date
+    },
+    rescheduled: {
+        type: Boolean,
+        default: false
+    },
+    scheduleHistory: [{
+        date: Date,
+        action: String, // 'scheduled' | 'rescheduled' | 'completed' | 'skipped'
+        reason: String,
+        timestamp: Date
+    }],
+    lastSnapshotPercent: {
+        type: Number,
+        default: 0
+    },
+    lastStudiedAt: Date,
     priorityScore: {
         type: Number,
         default: 0,

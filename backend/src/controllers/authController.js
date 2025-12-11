@@ -31,7 +31,7 @@ const registerUser = async (req, res) => {
         });
 
         const token = generateToken(user._id);
-        res.status(201).json({ 
+        res.status(201).json({
             token,
             user: {
                 id: user._id,
@@ -65,7 +65,7 @@ const loginUser = async (req, res) => {
         }
 
         const token = generateToken(user._id);
-        res.status(200).json({ 
+        res.status(200).json({
             token,
             user: {
                 id: user._id,
@@ -238,10 +238,34 @@ const updateEmailSettings = async (req, res) => {
     }
 };
 
+
+
+// @desc    Get current user
+// @route   GET /api/auth/profile
+// @access  Private
+const getMe = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        res.status(200).json({
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            credits: user.credits,
+            preferences: user.preferences,
+            createdAt: user.createdAt
+        });
+    } catch (error) {
+        console.error('Get Me Error:', error.message);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
     updateProfile,
     updatePreferences,
-    updateEmailSettings
+    updateEmailSettings,
+    getMe
 };

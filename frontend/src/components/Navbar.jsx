@@ -47,6 +47,15 @@ const Navbar = () => {
                             Dashboard
                         </Link>
                         <Link
+                            to="/schedules"
+                            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${isActive('/schedules')
+                                ? 'bg-blue-600 text-white shadow-lg'
+                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                }`}
+                        >
+                            Schedules
+                        </Link>
+                        <Link
                             to="/study-plan"
                             className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${isActive('/study-plan')
                                 ? 'bg-blue-600 text-white shadow-lg'
@@ -111,6 +120,15 @@ const Navbar = () => {
                             }`}
                     >
                         Dashboard
+                    </Link>
+                    <Link
+                        to="/schedules"
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive('/schedules')
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-700 hover:bg-blue-50'
+                            }`}
+                    >
+                        Schedules
                     </Link>
                     <Link
                         to="/study-plan"

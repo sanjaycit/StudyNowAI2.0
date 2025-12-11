@@ -61,6 +61,20 @@ const sendImmediateReminder = async () => {
     return await axiosInstance.post('/api/notifications/send-reminder');
 };
 
+// Get current user profile
+const getProfile = async () => {
+    const response = await axiosInstance.get('/api/auth/profile');
+    if (response.data) {
+        // Update local storage just in case
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            user.user = { ...user.user, ...response.data };
+            localStorage.setItem('user', JSON.stringify(user));
+        }
+    }
+    return response.data;
+};
+
 const authService = {
     registerUser,
     loginUser,
@@ -70,6 +84,7 @@ const authService = {
     updateEmailSettings,
     testEmail,
     sendImmediateReminder,
+    getProfile
 };
 
 export default authService; 

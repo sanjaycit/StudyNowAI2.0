@@ -54,8 +54,14 @@ const deleteTopic = async (id) => {
     return response.data;
 };
 
+const getFullSchedule = async () => {
+    const response = await axiosInstance.get('/api/study/schedule/full');
+    return response.data;
+};
+
 const studyService = {
     getStudySchedule,
+    getFullSchedule,
     getSubjects,
     createSubject,
     updateSubject,

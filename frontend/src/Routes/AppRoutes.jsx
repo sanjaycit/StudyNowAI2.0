@@ -12,6 +12,7 @@ import StudyPlan from "../pages/StudyPlan";
 import StudySession from "../pages/StudySession";
 import StudyResources from "../pages/StudyResources";
 import QuizPage from "../pages/QuizPage";
+import Schedules from "../pages/Schedules";
 
 // AppRoutes handles all the main routes for the app
 const AppRoutes = () => {
@@ -24,6 +25,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/schedules"
+        element={
+          <ProtectedRoute>
+            <Schedules />
           </ProtectedRoute>
         }
       />

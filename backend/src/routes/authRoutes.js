@@ -9,6 +9,7 @@ router.post('/login', loginUser);
 
 // Protected routes
 router.put('/profile', protect, updateProfile);
+router.get('/profile', protect, require('../controllers/authController').getMe);
 router.put('/preferences', protect, updatePreferences);
 router.put('/settings/email', protect, updateEmailSettings);
 
