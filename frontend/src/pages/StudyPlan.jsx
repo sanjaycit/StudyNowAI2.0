@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getAIStudySchedule, reset } from '../features/study/studySlice';
+import { getTopics, reset } from '../features/study/studySlice';
 import {
     PieChart,
     Pie,
@@ -18,7 +18,7 @@ import {
 const StudyPlan = () => {
     const dispatch = useDispatch();
     const {
-        aiSchedule: studyPlan,
+        topics: studyPlan, // Use all topics for progress visualization
         isLoading: loading,
         isError,
         message
@@ -27,19 +27,22 @@ const StudyPlan = () => {
     const error = isError ? message : '';
 
     useEffect(() => {
-        dispatch(getAIStudySchedule());
+        dispatch(getTopics()); // Fetch all topics
 
         return () => {
             dispatch(reset());
         };
     }, [dispatch]);
 
-    const statusCounts = { new: 0, learning: 0, revised: 0 };
+    const statusCounts = { new: 0, learning: 0, revised: 0, completed: 0 };
     const difficultyCounts = { easy: 0, medium: 0, hard: 0 };
 
     if (Array.isArray(studyPlan)) {
         studyPlan.forEach((topic) => {
-            if (topic && topic.status) statusCounts[topic.status]++;
+            if (topic && topic.status) {
+                // Initialize if key doesn't exist (safety, though initialized above)
+                statusCounts[topic.status] = (statusCounts[topic.status] || 0) + 1;
+            }
             if (topic && topic.difficulty) difficultyCounts[topic.difficulty]++;
         });
     }

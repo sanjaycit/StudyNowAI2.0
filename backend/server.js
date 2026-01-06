@@ -18,6 +18,7 @@ app.use('/api/auth', require('./src/routes/authRoutes'));
 app.use('/api/subjects', require('./src/routes/subjectRoutes'));
 app.use('/api/topics', require('./src/routes/topicRoutes'));
 app.use('/api/study', require('./src/routes/studyRoutes'));
+app.use('/api/schedule', require('./src/routes/schedulerRoutes'));
 
 // Health Check
 app.get('/', (req, res) => {

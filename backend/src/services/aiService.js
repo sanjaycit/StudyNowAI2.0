@@ -7,7 +7,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const generateRoadmap = async (topicName, subjectName, difficulty) => {
     console.log(`[AI Service] generateRoadmap called for: Topic="${topicName}", Subject="${subjectName}", Difficulty="${difficulty}"`);
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const prompt = `Create a structured study roadmap for the topic "${topicName}" in the subject "${subjectName}". 
         The difficulty level is "${difficulty}".
@@ -47,7 +47,7 @@ const generateRoadmap = async (topicName, subjectName, difficulty) => {
 const generateStepResources = async (stepTitle, topicName, subjectName) => {
     console.log(`[AI Service] generateStepResources called for: Step="${stepTitle}", Topic="${topicName}"`);
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const prompt = `Find 10 high-quality learning resources for the specific step "${stepTitle}" which is part of learning "${topicName}" in the subject "${subjectName}".
         
@@ -112,7 +112,7 @@ const generateStepResources = async (stepTitle, topicName, subjectName) => {
 const generateQuiz = async (topicName, subjectName, stepTitle = null) => {
     console.log(`[AI Service] generateQuiz called for: Topic="${topicName}", Subject="${subjectName}", Step="${stepTitle || 'N/A'}"`);
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         let promptContext = `Create a quiz for the topic "${topicName}" in the subject "${subjectName}".`;
         if (stepTitle) {

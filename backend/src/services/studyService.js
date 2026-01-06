@@ -191,10 +191,12 @@ async function buildSchedule(userId, startDate = new Date(), horizonDays = 30) {
                 if (!sb.topics || sb.topics.length === 0) continue;
 
                 // if subject's exam is before this day => skip (too late)
+                // if subject's exam is before this day => skip (too late)
                 const examDate = sb.subject?.examDate ? new Date(sb.subject.examDate) : null;
-                if (examDate && examDate < daySlot.date) {
-                    continue;
-                }
+                // RELAXED CONSTRAINT: Even if exam date is passed, we might still want to study it (e.g. catch up).
+                // if (examDate && examDate < daySlot.date) {
+                //    continue;
+                // }
 
                 // choose the first (lowest completion) topic
                 // But check if it's already scheduled in the future in DB?
