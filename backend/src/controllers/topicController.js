@@ -51,7 +51,7 @@ const getTopic = async (req, res) => {
 // @route   POST /api/topics
 // @access  Private
 const createTopic = async (req, res) => {
-    const { subject, name, status = 'new', difficulty = 'medium' } = req.body;
+    const { subject, name, status = 'new', difficulty = 'medium', prerequisites, estimatedTime, nextReviewDate } = req.body;
 
     try {
         const newTopic = new Topic({
@@ -60,6 +60,9 @@ const createTopic = async (req, res) => {
             name,
             status,
             difficulty,
+            prerequisites: prerequisites || [],
+            estimatedTime: estimatedTime || 1.0,
+            nextReviewDate: nextReviewDate || null
         });
 
         const savedTopic = await newTopic.save();
@@ -74,7 +77,7 @@ const createTopic = async (req, res) => {
 // @route   PUT /api/topics/:id
 // @access  Private
 const updateTopic = async (req, res) => {
-    const { subject, name, status, difficulty } = req.body;
+    const { subject, name, status, difficulty, prerequisites, estimatedTime, nextReviewDate } = req.body;
 
     try {
         let topic = await Topic.findById(req.params.id);
@@ -91,6 +94,10 @@ const updateTopic = async (req, res) => {
         topic.name = name || topic.name;
         topic.status = status || topic.status;
         topic.difficulty = difficulty || topic.difficulty;
+
+        if (prerequisites !== undefined) topic.prerequisites = prerequisites;
+        if (estimatedTime !== undefined) topic.estimatedTime = estimatedTime;
+        if (nextReviewDate !== undefined) topic.nextReviewDate = nextReviewDate;
 
         // If a topic is revised, update review dates
         if (status === 'revised') {

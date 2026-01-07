@@ -62,6 +62,21 @@ const TopicSchema = new mongoose.Schema({
         enum: ['easy', 'medium', 'hard'],
         default: 'medium',
     },
+    // DAACS Fields
+    prerequisites: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Topic'
+    }],
+    estimatedTime: {
+        type: Number,
+        default: 1.0 // Expected hours to master
+    },
+    masteryLevel: {
+        type: Number,
+        default: 0.0,
+        min: 0,
+        max: 1
+    },
     completionPercent: {
         type: Number,
         default: 0

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getFullSchedule } from '../features/study/studySlice';
+import { getFullSchedule, optimizeSchedule } from '../features/study/studySlice';
 import { motion } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 
 const Schedules = () => {
     const dispatch = useDispatch();
@@ -50,13 +51,31 @@ const Schedules = () => {
     return (
         <div className="min-h-screen bg-gray-50 pb-12">
             <div className="bg-white shadow-sm border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 tracking-tight">
-                        Your Schedule
-                    </h1>
-                    <p className="mt-2 text-gray-500 text-lg">
-                        Stay organized with your upcoming study timeline.
-                    </p>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-between items-center">
+                    <div>
+                        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 tracking-tight">
+                            Your Schedule
+                        </h1>
+                        <p className="mt-2 text-gray-500 text-lg">
+                            Stay organized with your upcoming study timeline.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => {
+                            toast.promise(
+                                dispatch(optimizeSchedule()).unwrap(),
+                                {
+                                    loading: 'Optimizing schedule with DAACS AI...',
+                                    success: 'Schedule generated successfully!',
+                                    error: 'Failed to generate schedule.'
+                                }
+                            );
+                        }}
+                        className="btn-primary flex items-center shadow-lg"
+                    >
+                        <span className="text-xl mr-2">🤖</span>
+                        Generate AI Schedule
+                    </button>
                 </div>
             </div>
 

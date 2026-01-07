@@ -16,6 +16,8 @@ const Topics = () => {
         name: '',
         status: 'new',
         difficulty: 'medium',
+        estimatedTime: 1.0,
+        prerequisites: []
     });
     const [editingId, setEditingId] = useState(null);
     const [formError, setFormError] = useState('');
@@ -31,7 +33,7 @@ const Topics = () => {
     }, [dispatch]);
 
     const handleReset = () => {
-        setForm({ ...form, name: '', status: 'new', difficulty: 'medium' });
+        setForm({ ...form, name: '', status: 'new', difficulty: 'medium', estimatedTime: 1.0, prerequisites: [] });
         setEditingId(null);
         setFormError('');
     };
@@ -66,6 +68,8 @@ const Topics = () => {
             name: topic.name,
             status: topic.status,
             difficulty: topic.difficulty,
+            estimatedTime: topic.estimatedTime || 1.0,
+            prerequisites: topic.prerequisites ? topic.prerequisites.map(p => typeof p === 'object' ? p._id : p) : []
         });
         setEditingId(topic._id);
         window.scrollTo(0, 0);
@@ -159,6 +163,35 @@ const Topics = () => {
                                     <option value="medium">Medium</option>
                                     <option value="hard">Hard</option>
                                 </select>
+                            </div>
+                            <div>
+                                <label className="form-label">Est. Time (Hours)</label>
+                                <input
+                                    type="number"
+                                    name="estimatedTime"
+                                    value={form.estimatedTime}
+                                    onChange={handleChange}
+                                    step="0.5" min="0.5" max="10"
+                                    className="input-field"
+                                />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="form-label">Prerequisites (DAACS)</label>
+                                <select
+                                    multiple
+                                    name="prerequisites"
+                                    value={form.prerequisites}
+                                    onChange={(e) => {
+                                        const values = Array.from(e.target.selectedOptions, option => option.value);
+                                        setForm({ ...form, prerequisites: values });
+                                    }}
+                                    className="input-field h-32"
+                                >
+                                    {topics.filter(t => t._id !== editingId).map((t) => (
+                                        <option key={t._id} value={t._id}>{t.name} ({t.difficulty})</option>
+                                    ))}
+                                </select>
+                                <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple topics that must be finished first.</p>
                             </div>
                         </div>
                         <div className="flex justify-end space-x-4">

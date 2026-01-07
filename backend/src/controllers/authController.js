@@ -86,20 +86,24 @@ const loginUser = async (req, res) => {
 // @access  Private
 const updateProfile = async (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, daacs } = req.body;
 
         // Validate input
-        if (!name || name.trim().length < 2) {
+        if (name && name.trim().length < 2) {
             return res.status(400).json({
                 success: false,
                 message: 'Name must be at least 2 characters long'
             });
         }
 
+        const updateData = {};
+        if (name) updateData.name = name.trim();
+        if (daacs) updateData.daacs = daacs;
+
         // Find and update user
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
-            { name: name.trim() },
+            updateData,
             { new: true, runValidators: true }
         ).select('-password');
 
@@ -253,6 +257,7 @@ const getMe = async (req, res) => {
             email: user.email,
             credits: user.credits,
             preferences: user.preferences,
+            daacs: user.daacs,
             createdAt: user.createdAt
         });
     } catch (error) {

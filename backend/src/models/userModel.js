@@ -70,6 +70,12 @@ const userSchema = new mongoose.Schema({
     emailNotificationsEnabled: {
         type: Boolean,
         default: true,
+    },
+    // DAACS Learner Profile
+    daacs: {
+        alpha: { type: Number, default: 1.0 }, // Learning Rate
+        beta: { type: Number, default: 0.5 },  // Retention Rate
+        phi: { type: Number, default: 0.1 }   // Consistency Factor
     }
 }, {
     timestamps: true

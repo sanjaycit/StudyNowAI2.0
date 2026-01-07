@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { 
-    updateProfile, 
-    updatePreferences, 
+import {
+    updateProfile,
+    updatePreferences,
     reset,
     updateEmailSettings,
     testEmail,
-    sendImmediateReminder 
+    sendImmediateReminder
 } from '../features/auth/authSlice';
 
 const Settings = () => {
     const { user, isLoading, isSuccess, isError, message } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
-    
+
     const [activeTab, setActiveTab] = useState('profile');
     const [name, setName] = useState('');
-    
+
     // Set initial state from user object once it's loaded
     useEffect(() => {
         if (user) {
@@ -36,8 +36,28 @@ const Settings = () => {
         reviewFrequency: 'Standard'
     });
 
+    // DAACS State
+    const [daacs, setDaacs] = useState({
+        alpha: 1.0,
+        beta: 0.5,
+        phi: 0.1,
+        dailyCapacity: 2.0
+    });
+
+    useEffect(() => {
+        if (user && user.daacs) {
+            setDaacs({
+                alpha: user.daacs.alpha || 1.0,
+                beta: user.daacs.beta || 0.5,
+                phi: user.daacs.phi || 0.1,
+                dailyCapacity: 2.0 // This field isn't in user model yet but we can mock or add preference later
+            });
+        }
+    }, [user]);
+
     const tabs = [
         { id: 'profile', name: 'Profile', icon: '👤' },
+        { id: 'learner', name: 'Learner Profile (DAACS)', icon: '🧠' },
         { id: 'notifications', name: 'Email Notifications', icon: '📧' },
         { id: 'preferences', name: 'Preferences', icon: '⚙️' },
         { id: 'about', name: 'About', icon: 'ℹ️' }
@@ -54,6 +74,12 @@ const Settings = () => {
     const handleProfileUpdate = (e) => {
         e.preventDefault();
         dispatch(updateProfile({ name }));
+    };
+
+    const handleDaacsUpdate = (e) => {
+        e.preventDefault();
+        // Pack it into updateProfile call
+        dispatch(updateProfile({ name, daacs }));
     };
 
     const handlePreferencesUpdate = (e) => {
@@ -108,11 +134,10 @@ const Settings = () => {
                                         <button
                                             key={tab.id}
                                             onClick={() => setActiveTab(tab.id)}
-                                            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                                                activeTab === tab.id
+                                            className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
                                                     ? 'border-blue-500 text-blue-600'
                                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                            }`}
+                                                }`}
                                         >
                                             <span className="mr-2">{tab.icon}</span>
                                             {tab.name}
@@ -155,12 +180,78 @@ const Settings = () => {
                                             <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                                         </div>
                                         <div className="pt-4">
-                                            <button 
+                                            <button
                                                 type="submit"
                                                 disabled={isLoading}
                                                 className="btn-primary"
                                             >
                                                 {isLoading ? 'Updating...' : 'Update Profile'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
+
+                            {activeTab === 'learner' && (
+                                <div className="p-6">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">DAACS Learner Profile</h3>
+                                    <p className="text-sm text-gray-600 mb-6">
+                                        Configure your personalized learning parameters for the Adaptive Scheduler.
+                                    </p>
+
+                                    <form onSubmit={handleDaacsUpdate} className="space-y-6">
+                                        {/* Alpha (Learning Rate) */}
+                                        <div>
+                                            <div className="flex justify-between mb-2">
+                                                <label className="text-sm font-medium text-gray-700">Learning Rate (α)</label>
+                                                <span className="text-sm text-blue-600 font-bold">{daacs.alpha}x</span>
+                                            </div>
+                                            <input
+                                                type="range" min="0.5" max="3.0" step="0.1"
+                                                value={daacs.alpha}
+                                                onChange={(e) => setDaacs({ ...daacs, alpha: parseFloat(e.target.value) })}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                            />
+                                            <p className="text-xs text-gray-500 mt-1">Multiplier for learning speed. Higher is faster.</p>
+                                        </div>
+
+                                        {/* Beta (Retention Rate) */}
+                                        <div>
+                                            <div className="flex justify-between mb-2">
+                                                <label className="text-sm font-medium text-gray-700">Retention Rate (β)</label>
+                                                <span className="text-sm text-blue-600 font-bold">{daacs.beta}</span>
+                                            </div>
+                                            <input
+                                                type="range" min="0.1" max="1.0" step="0.05"
+                                                value={daacs.beta}
+                                                onChange={(e) => setDaacs({ ...daacs, beta: parseFloat(e.target.value) })}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                            />
+                                            <p className="text-xs text-gray-500 mt-1">Probability of retaining info week-to-week.</p>
+                                        </div>
+
+                                        {/* Phi (Consistency) */}
+                                        <div>
+                                            <div className="flex justify-between mb-2">
+                                                <label className="text-sm font-medium text-gray-700">Consistency (φ)</label>
+                                                <span className="text-sm text-blue-600 font-bold">{daacs.phi}</span>
+                                            </div>
+                                            <input
+                                                type="range" min="0.0" max="1.0" step="0.05"
+                                                value={daacs.phi}
+                                                onChange={(e) => setDaacs({ ...daacs, phi: parseFloat(e.target.value) })}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                            />
+                                            <p className="text-xs text-gray-500 mt-1">Variance in daily performance (Noise factor).</p>
+                                        </div>
+
+                                        <div className="pt-4">
+                                            <button
+                                                type="submit"
+                                                disabled={isLoading}
+                                                className="btn-primary"
+                                            >
+                                                {isLoading ? 'Saving Parameters...' : 'Save Learner Profile'}
                                             </button>
                                         </div>
                                     </form>
@@ -188,23 +279,21 @@ const Settings = () => {
                                                     Master switch for all email notifications.
                                                 </p>
                                             </div>
-                                            
+
                                             <button
                                                 onClick={handleEmailToggle}
                                                 disabled={isLoading}
-                                                className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out ${
-                                                    user.emailNotificationsEnabled ? 'bg-blue-600' : 'bg-gray-200'
-                                                }`}
+                                                className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 ease-in-out ${user.emailNotificationsEnabled ? 'bg-blue-600' : 'bg-gray-200'
+                                                    }`}
                                             >
                                                 <span
-                                                    className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out ${
-                                                        user.emailNotificationsEnabled ? 'translate-x-6' : 'translate-x-1'
-                                                    }`}
+                                                    className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out ${user.emailNotificationsEnabled ? 'translate-x-6' : 'translate-x-1'
+                                                        }`}
                                                 />
                                             </button>
                                         </div>
                                     </div>
-                                    
+
                                     <div className={`transition-opacity duration-300 ${!user.emailNotificationsEnabled && 'opacity-50 pointer-events-none'}`}>
                                         {/* Test Email Buttons */}
                                         <div className="mb-6">
@@ -228,7 +317,7 @@ const Settings = () => {
                             {activeTab === 'preferences' && (
                                 <div className="p-6">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Study Preferences</h3>
-                                    
+
                                     <form onSubmit={handlePreferencesUpdate} className="space-y-6">
                                         <div>
                                             <h4 className="text-md font-medium text-gray-900 mb-3">Study Schedule</h4>
@@ -302,7 +391,7 @@ const Settings = () => {
                                         </div>
 
                                         <div className="pt-4">
-                                            <button 
+                                            <button
                                                 type="submit"
                                                 disabled={isLoading}
                                                 className="btn-primary"
@@ -322,7 +411,7 @@ const Settings = () => {
                                             <h4 className="text-md font-medium text-blue-900 mb-2">Version</h4>
                                             <p className="text-blue-700">StudyNow AI v1.0.0</p>
                                         </div>
-                                        
+
                                         <div>
                                             <h4 className="text-md font-medium text-gray-900 mb-2">Features</h4>
                                             <ul className="space-y-2 text-sm text-gray-600">
@@ -346,9 +435,9 @@ const Settings = () => {
                                         </div>
 
                                         <div className="pt-4">
-                                            <a 
-                                                href="https://github.com/your-repo/studynow-ai" 
-                                                target="_blank" 
+                                            <a
+                                                href="https://github.com/your-repo/studynow-ai"
+                                                target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="btn-secondary"
                                             >

@@ -163,6 +163,17 @@ export const submitStepQuiz = createAsyncThunk('study/submitStepQuiz', async ({ 
     }
 });
 
+export const optimizeSchedule = createAsyncThunk('study/optimizeSchedule', async (_, thunkAPI) => {
+    try {
+        const result = await studyService.optimizeSchedule();
+        // After optimization, fetch full schedule again
+        thunkAPI.dispatch(getFullSchedule());
+        return result;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.toString());
+    }
+});
+
 export const studySlice = createSlice({
     name: 'study',
     initialState,
@@ -310,6 +321,12 @@ export const studySlice = createSlice({
                 state.isQuizLoading = false;
                 state.isError = true;
                 state.message = action.payload;
+            })
+            // Optimize Schedule
+            .addCase(optimizeSchedule.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isSuccess = true;
+                // message could be set if needed
             })
             // General matchers for pending and rejected states
             // These MUST come after all addCase calls

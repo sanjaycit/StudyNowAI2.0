@@ -62,6 +62,10 @@ const getFullSchedule = async () => {
 const studyService = {
     getStudySchedule,
     getFullSchedule,
+    optimizeSchedule: async () => {
+        const response = await axiosInstance.post('/api/schedule/optimize');
+        return response.data;
+    },
     getSubjects,
     createSubject,
     updateSubject,

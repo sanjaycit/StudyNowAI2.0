@@ -26,8 +26,23 @@ const optimizeSchedule = async (req, res) => {
         let dataString = '';
         let errorString = '';
 
-        // 3. Send data to Python script
-        pythonProcess.stdin.write(JSON.stringify(topics));
+        // 3. Prepare Payload (User Profile + Topics)
+        // Fetch full user to get DAACS profile
+        const user = await require('../models/userModel').findById(userId);
+
+        const payload = {
+            user: {
+                alpha: user.daacs?.alpha || 1.0,
+                beta: user.daacs?.beta || 0.5,
+                phi: user.daacs?.phi || 0.1,
+                dailyCapacity: 2.0, // Default 2 hours per day, could come from preferences
+                days_until_exam: 90 // Default, needs to be dynamic or per-topic
+            },
+            topics: topics
+        };
+
+        // Send data to Python script
+        pythonProcess.stdin.write(JSON.stringify(payload));
         pythonProcess.stdin.end();
 
         // 4. Collect Output
@@ -49,11 +64,17 @@ const optimizeSchedule = async (req, res) => {
             try {
                 const optimizedTasks = JSON.parse(dataString);
 
-                // 5. Update Priorities in DB
+                // 5. Update Priorities and Dates in DB
                 const bulkOps = optimizedTasks.map(task => ({
                     updateOne: {
                         filter: { _id: task._id },
-                        update: { $set: { priorityScore: task.priorityScore } }
+                        update: {
+                            $set: {
+                                priorityScore: task.priorityScore,
+                                scheduledDate: task.scheduledDate,
+                                // store metadata if we want, or logs
+                            }
+                        }
                     }
                 }));
 
