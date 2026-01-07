@@ -1,6 +1,6 @@
-// File: /src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import ErrorBoundary from './components/ErrorBoundary';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
@@ -23,9 +23,11 @@ axiosInstance.interceptors.request.use(
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         <Provider store={store}>
-            <BrowserRouter>
-                <App />
-            </BrowserRouter>
+            <ErrorBoundary>
+                <BrowserRouter>
+                    <App />
+                </BrowserRouter>
+            </ErrorBoundary>
         </Provider>
     </React.StrictMode>
 );

@@ -13,8 +13,11 @@ const ProctorMonitor = ({ onViolation, isActive }) => {
     const faceCheckInterval = useRef(null);
     const noFaceStartTime = useRef(null);
 
+    const isMounted = useRef(false);
+
     // Initialize camera
     useEffect(() => {
+        isMounted.current = true;
         if (isActive) {
             initializeCamera();
             requestFullscreen();
@@ -22,6 +25,7 @@ const ProctorMonitor = ({ onViolation, isActive }) => {
         }
 
         return () => {
+            isMounted.current = false;
             cleanup();
         };
     }, [isActive]);
@@ -35,18 +39,24 @@ const ProctorMonitor = ({ onViolation, isActive }) => {
                 }
             });
 
-            if (videoRef.current) {
+            // CRITICAL: Check if mounted and ref exists before using
+            if (isMounted.current && videoRef.current) {
                 videoRef.current.srcObject = stream;
                 streamRef.current = stream;
                 setCameraPermission(true);
                 toast.success('Camera enabled for proctoring');
 
-                // Start face detection after video loads
                 videoRef.current.onloadedmetadata = () => {
-                    startFaceDetection();
+                    if (isMounted.current) {
+                        startFaceDetection();
+                    }
                 };
+            } else {
+                // If unmounted, stop immediately
+                stream.getTracks().forEach(track => track.stop());
             }
         } catch (error) {
+            if (!isMounted.current) return;
             console.error('Camera access denied:', error);
             setCameraPermission(false);
             toast.error('Camera access is required for this quiz');
@@ -175,7 +185,7 @@ const ProctorMonitor = ({ onViolation, isActive }) => {
 
     const handleWindowBlur = () => {
         logViolation('Window lost focus');
-        toast.warning('Please stay focused on the quiz');
+        toast('Please stay focused on the quiz', { icon: '⚠️' });
     };
 
     const preventContextMenu = (e) => {
@@ -239,8 +249,9 @@ const ProctorMonitor = ({ onViolation, isActive }) => {
 
                 // Show warning about remaining chances
                 const remaining = 2 - newViolations.length;
-                toast.warning(`⚠️ Warning ${newViolations.length}/2 - ${remaining} warning(s) remaining before termination!`, {
-                    duration: 4000
+                toast(`⚠️ Warning ${newViolations.length}/2 - ${remaining} warning(s) remaining before termination!`, {
+                    duration: 4000,
+                    icon: '⚠️'
                 });
             }
 
