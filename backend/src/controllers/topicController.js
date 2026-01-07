@@ -323,7 +323,7 @@ const getTopicQuiz = async (req, res) => {
 };
 
 const submitTopicQuiz = async (req, res) => {
-    const { answers } = req.body; // Array of indices corresponding to questions
+    const { answers, proctoring } = req.body; // Array of indices corresponding to questions + proctoring data
     // Expecting answers to be an array of objects: { questionId, selectedOptionIndex } OR just ordered array if we trust order.
     // Better: Map { questionId: index } or just array of indices matching the order sent.
     // Let's assume ordered array of indices for simplicity as we send them sorted.
@@ -377,7 +377,12 @@ const submitTopicQuiz = async (req, res) => {
             score: correctCount,
             percentage: percentage,
             areasToImprove: areasToImprove,
-            completedAt: new Date()
+            completedAt: new Date(),
+            proctoring: proctoring || {
+                violations: [],
+                violationCount: 0,
+                timestamp: new Date().toISOString()
+            }
         };
 
         // Mark topic as completed
@@ -465,7 +470,7 @@ const getStepQuiz = async (req, res) => {
 
 const submitStepQuiz = async (req, res) => {
     const { stepIndex } = req.params;
-    const { answers } = req.body;
+    const { answers, proctoring } = req.body;
 
     try {
         const topic = await Topic.findById(req.params.id);
@@ -516,7 +521,12 @@ const submitStepQuiz = async (req, res) => {
             score: correctCount,
             percentage: percentage,
             areasToImprove: areasToImprove,
-            completedAt: new Date()
+            completedAt: new Date(),
+            proctoring: proctoring || {
+                violations: [],
+                violationCount: 0,
+                timestamp: new Date().toISOString()
+            }
         };
 
         // Mark step as completed if passed (e.g. > 50%)

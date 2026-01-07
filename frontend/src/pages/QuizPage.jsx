@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getTopicQuiz, submitTopicQuiz, getStepQuiz, submitStepQuiz, reset } from '../features/study/studySlice';
 import { toast } from 'react-hot-toast';
+import ProctorMonitor from '../components/ProctorMonitor';
+import ProctorSetup from '../components/ProctorSetup';
 
 const QuizPage = () => {
     const { id, stepIndex } = useParams();
@@ -14,6 +16,11 @@ const QuizPage = () => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState({});
     const [selectedOption, setSelectedOption] = useState(null);
+
+    // Proctoring states
+    const [proctorSetupComplete, setProctorSetupComplete] = useState(false);
+    const [proctorActive, setProctorActive] = useState(false);
+    const [violations, setViolations] = useState([]);
 
     useEffect(() => {
         dispatch(reset());
@@ -79,10 +86,52 @@ const QuizPage = () => {
         const finalAnswersMap = { ...answers, [currentQuestionIndex]: selectedOption };
         const answersArray = quiz.map((_, index) => finalAnswersMap[index] ?? -1); // -1 for unanswered
 
+        // Include proctoring data in submission
+        const submissionData = {
+            answers: answersArray,
+            proctoring: {
+                violations: violations,
+                violationCount: violations.length,
+                timestamp: new Date().toISOString()
+            }
+        };
+
         if (stepIndex !== undefined) {
-            await dispatch(submitStepQuiz({ id, stepIndex, answers: answersArray }));
+            await dispatch(submitStepQuiz({ id, stepIndex, ...submissionData }));
         } else {
-            await dispatch(submitTopicQuiz({ id, answers: answersArray }));
+            await dispatch(submitTopicQuiz({ id, ...submissionData }));
+        }
+    };
+
+    // Proctoring handlers
+    const handleProctorAccept = () => {
+        setProctorSetupComplete(true);
+        setProctorActive(true);
+    };
+
+    const handleProctorDecline = () => {
+        toast.error('Proctoring is required for this quiz');
+        navigate(-1); // Go back
+    };
+
+    const handleViolation = (violation) => {
+        setViolations(prev => [...prev, violation]);
+
+        // Check if this violation triggers termination
+        if (violation.terminate) {
+            console.log('Quiz terminated due to violations');
+            toast.error('Quiz terminated due to excessive violations!', { duration: 6000 });
+
+            // Navigate back after a delay to show the message
+            setTimeout(() => {
+                navigate(stepIndex ? `/study/${id}` : '/topics', {
+                    state: {
+                        terminated: true,
+                        reason: 'Maximum violations (2) exceeded during proctored quiz',
+                        violations: violations.length + 1
+                    }
+                });
+            }, 3000);
         }
     };
 
@@ -94,6 +143,11 @@ const QuizPage = () => {
         );
     }
 
+    // Show proctoring setup screen if not completed
+    if (!proctorSetupComplete) {
+        return <ProctorSetup onAccept={handleProctorAccept} onDecline={handleProctorDecline} />;
+    }
+
     if (quizResult) {
         return (
             <div className="min-h-screen gradient-bg p-8 flex items-center justify-center">
@@ -103,6 +157,46 @@ const QuizPage = () => {
                     <div className="mb-8">
                         <div className="text-6xl font-extrabold text-indigo-600 mb-2">{Math.round(quizResult.percentage)}%</div>
                         <p className="text-xl text-gray-600">Score: {quizResult.score} / {quizResult.total}</p>
+                    </div>
+
+                    {/* Proctoring Summary */}
+                    <div className={`mb-6 p-6 rounded-xl border-2 ${violations.length === 0
+                        ? 'bg-green-50 border-green-300'
+                        : violations.length < 3
+                            ? 'bg-yellow-50 border-yellow-300'
+                            : 'bg-red-50 border-red-300'
+                        }`}>
+                        <h3 className={`text-lg font-bold mb-2 ${violations.length === 0
+                            ? 'text-green-800'
+                            : violations.length < 3
+                                ? 'text-yellow-800'
+                                : 'text-red-800'
+                            }`}>
+                            Proctoring Summary
+                        </h3>
+                        {violations.length === 0 ? (
+                            <div className="flex items-center justify-center text-green-700">
+                                <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" />
+                                </svg>
+                                <span className="font-semibold">No violations detected - Excellent!</span>
+                            </div>
+                        ) : (
+                            <div>
+                                <p className={`font-semibold mb-3 ${violations.length < 3 ? 'text-yellow-700' : 'text-red-700'
+                                    }`}>
+                                    {violations.length} violation{violations.length > 1 ? 's' : ''} detected during quiz
+                                </p>
+                                <div className="text-left max-h-32 overflow-y-auto bg-white rounded-lg p-3 border">
+                                    {violations.map((v, idx) => (
+                                        <div key={idx} className="text-sm text-gray-700 mb-1 flex items-start">
+                                            <span className="text-red-500 mr-2">•</span>
+                                            <span className="flex-1">{v.type}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="bg-blue-50 p-6 rounded-xl mb-8 text-left">
@@ -141,6 +235,9 @@ const QuizPage = () => {
 
     return (
         <div className="min-h-screen gradient-bg p-4 md:p-8 flex items-center justify-center">
+            {/* Proctoring Monitor */}
+            <ProctorMonitor isActive={proctorActive} onViolation={handleViolation} />
+
             <div className="card max-w-3xl w-full p-6 md:p-10 relative">
 
                 {/* Progress Bar */}
