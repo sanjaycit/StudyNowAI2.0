@@ -2,27 +2,27 @@
 
 > **Making studying simpler, smarter, and stress-free!**
 
-StudyNowAI is an AI-powered personalized study assistant designed to transform the self-learning experience. It leverages Generative AI (Google Gemini) to act as a personal tutor that plans studies, curates resources, and assesses progress.
+StudyNowAI is an AI-powered personalized study assistant designed to transform the self-learning experience. It leverages Generative AI (Google Gemini) and a novel **Hybrid Intelligence Architecture** to act as a personal tutor that plans studies, curates resources, and assesses progress.
 
 ---
 
 ## 📖 Table of Contents
 - [Overview](#overview)
 - [Key Features](#-key-features)
+- [DAACS Scheduler](#-daacs-scheduler)
 - [Architecture](#-architecture)
 - [Tech Stack](#-tech-stack)
 - [Proctoring System](#-proctoring-system)
 - [Getting Started](#-getting-started)
 - [Environment Variables](#-environment-variables)
 - [Project Structure](#-project-structure)
-- [Future Enhancements](#-future-enhancements)
 
 ---
 
 ## Overview
 
 Self-learners often struggle with organizing their study path and verifying their knowledge, leading to "analysis paralysis". StudyNowAI solves this by:
-1.  **Automating Planning**: Generating structured roadmaps for any topic.
+1.  **Automating Planning**: Generating structured roadmaps and schedules using **DAACS**.
 2.  **Curating Resources**: Finding high-quality tutorials and documentation.
 3.  **Verifying Knowledge**: Creating adaptive quizzes with instant feedback.
 4.  **Ensuring Integrity**: Using a smart proctoring system for assessments.
@@ -31,35 +31,59 @@ Self-learners often struggle with organizing their study path and verifying thei
 
 ## 🚀 Key Features
 
-### 1. 🧠 AI Roadmap Generation
+### 1. 📅 Deadline-Aware Adaptive Curriculum Scheduler (DAACS)
+- **Topological Optimization**: Automatically schedules topics based on prerequisite dependencies (Graphs).
+- **Capacity Planning**: Respects your daily study limits (e.g., 2 hours/day) and prevents burnout.
+- **Learner Modeling**: Adjusts the schedule based on your personal Learning Rate ($\alpha$), Retention ($\beta$), and Consistency ($\phi$).
+- **Priority Queue**: Dynamically prioritizes tasks based on deadlines and difficulty.
+
+### 2. 🧠 AI Roadmap Generation
 - **Structured Learning**: Decomposes any topic (e.g., "React Hooks") into a step-by-step roadmap.
 - **Gemini Powered**: Uses Google's Gemini 1.5 Flash model for accurate and logical study paths.
 
-### 2. 📚 Smart Resource Curation
+### 3. 📚 Smart Resource Curation
 - **Context-Aware**: AI evaluates and ranks video and text resources for each learning step.
 - **Relevance Scoring**: Prioritizes high-quality content to save study time.
 
-### 3. 🎯 Adaptive Assessment
-- **Dynamic Quizzes**: Generates questions based on the specific topic and difficulty level (Easy, Medium, Hard).
+### 4. 🎯 Adaptive Assessment
+- **Dynamic Quizzes**: Generates questions based on the specific topic and difficulty level.
 - **Instant Feedback**: Explains why answers are correct or incorrect.
 
-### 4. 📊 Dashboard & Progress Tracking
-- **Visual Analytics**: Track topics across statuses: "New", "Learning", "Revise", "Completed".
-- **Study Plans**: View generated schedules and mastery levels.
+### 5. �️ Secure Proctoring
+- **Integrity Validation**: Ensures quiz authenticity through browser-based monitoring (Tab switching, Fullscreen enforcement).
 
-### 5. 🛡️ Secure Proctoring
-- **Integrity Validation**: Ensures quiz authenticity through browser-based monitoring.
+---
+
+## 📅 DAACS Scheduler
+
+The **Deadline-Aware Adaptive Curriculum Scheduler** is the brain of StudyNowAI. It treats your learning path as a "Resource-Constrained Project Scheduling Problem" (RCPSP).
+
+### How it Works
+1.  **Define Profile**: Go to **Settings > Learner Profile** to set your:
+    *   **Learning Rate ($\alpha$)**: How fast you learn relative to the average.
+    *   **Daily Capacity**: Maximum hours you can study per day.
+2.  **Add Topics**: When creating topics, you can now specify **Prerequisites** and **Estimated Time**.
+3.  **Generate Plan**: Click **"Generate AI Schedule"** on the Schedules page. The Python-based Tactical Scheduler will:
+    *   Build a Dependency Graph of your topics.
+    *   Sort them topologically (Prerequisites first).
+    *   Assign dates based on your speed and capacity.
 
 ---
 
 ## 🏗 Architecture
 
-**Flow:** `User -> React Frontend -> Express API -> AI Service -> Gemini -> Database -> Response to User`
+**Hybrid Intelligence Framework:**
 
-1.  **Frontend**: React.js + Tailwind CSS (User Interface)
-2.  **Backend**: Node.js + Express.js (API Layer)
-3.  **Database**: MongoDB (Stores Users, Topics, Progress)
-4.  **AI Engine**: Google Gemini API (Generates JSON Roadmaps & Quizzes)
+The system operates as a closed-loop control system integrating Node.js for application logic and Python for complex combinatorial optimization.
+
+**Flow:** `User -> React Frontend -> Express API -> (Data Exchange) -> Python DAACS Engine -> Database -> Response`
+
+1.  **Frontend**: React.js + Tailwind CSS + Redux (UI & State)
+2.  **Backend API**: Node.js + Express.js (Orchestration)
+3.  **Optimization Engine**: Python 3.x (Pandas, NumPy)
+    *   *Role*: Handles topological sorting and heuristic scheduling algorithms.
+4.  **AI Engine**: Google Gemini API (Generative Content)
+5.  **Database**: MongoDB (Stores Graphs, User Profiles, Logs)
 
 ---
 
@@ -67,17 +91,16 @@ Self-learners often struggle with organizing their study path and verifying thei
 
 ### Frontend
 - **Framework**: React.js (Vite)
-- **State Management**: Redux Toolkit
-- **Styling**: Tailwind CSS
-- **Routing**: React Router
-- **HTTP Client**: Axios
+- **State**: Redux Toolkit (Persistent State)
+- **Styling**: Tailwind CSS + Framer Motion
+- **HTTP**: Axios
 
-### Backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
+### Backend & AI
+- **Runtime**: Node.js & Python 3.9+
 - **Database**: MongoDB & Mongoose
-- **Authentication**: JWT & Bcrypt
-- **AI Integration**: Google Generative AI SDK
+- **Auth**: JWT & Bcrypt
+- **GenAI**: Google Gemini SDK
+- **Data Science**: Pandas, NumPy (for DAACS)
 
 ---
 
@@ -86,16 +109,10 @@ Self-learners often struggle with organizing their study path and verifying thei
 The application includes a comprehensive proctoring system to ensure academic integrity during quizzes.
 
 ### Monitoring Features
-1.  **Camera Monitoring**: Displays a live video feed and requests user presence.
-2.  **Face Presence Detection**: Monitors for face presence using brightness and motion analysis (Privacy-focused: no facial recognition data stored).
-3.  **Fullscreen Enforcement**: Requires the quiz to be taken in fullscreen mode; logs violations on exit.
-4.  **Tab Switching Detection**: Detects and warns when the user leaves the quiz tab or minimizes the window.
-5.  **Copy/Paste Prevention**: Blocks clipboard actions and text selection.
-6.  **Screenshot Prevention**: Intercepts common keyboard shortcuts for screenshots.
-
-### Violation Logging
-- Violations (e.g., "Tab Switched", "Fullscreen Exited") are recorded with timestamps.
-- A summary is presented at the end of the quiz with a color-coded integrity score (Green/Yellow/Red).
+1.  **Face Presence Detection**: Monitors for face presence using brightness and motion analysis.
+2.  **Fullscreen Enforcement**: Requires the quiz to be taken in fullscreen mode.
+3.  **Tab Switching Detection**: Detects when the user leaves the quiz tab.
+4.  **Anti-Cheating**: Blocks clipboard actions (Copy/Paste) and context menus.
 
 ---
 
@@ -103,7 +120,8 @@ The application includes a comprehensive proctoring system to ensure academic in
 
 ### Prerequisites
 - Node.js (v16+)
-- MongoDB (local or cloud)
+- Python (v3.8+) with `pandas`, `numpy`
+- MongoDB
 
 ### Installation
 
@@ -117,7 +135,8 @@ The application includes a comprehensive proctoring system to ensure academic in
     ```bash
     cd backend
     npm install
-    # Setup .env file (see below)
+    # Install Python dependencies
+    pip install pandas numpy scikit-learn
     npm start
     ```
 
@@ -125,7 +144,6 @@ The application includes a comprehensive proctoring system to ensure academic in
     ```bash
     cd frontend
     npm install
-    # Setup .env file (see below)
     npm run dev
     ```
 
@@ -133,21 +151,17 @@ The application includes a comprehensive proctoring system to ensure academic in
 
 ## 📁 Environment Variables
 
-Create specific `.env` files in the `backend` and `frontend` directories.
-
 ### Backend (`backend/.env`)
 ```env
-MONGO_URI=mongodb://localhost:27017/studynowai
-JWT_SECRET=your_jwt_secret_key
+MONGO_URI=mongodb+srv://...
+JWT_SECRET=your_jwt_secret
 PORT=5000
-EMAIL_USER=your_email@example.com
-EMAIL_PASS=your_email_password
-GEMINI_API_KEY=your_google_gemini_api_key
+GEMINI_API_KEY=your_gemini_key
 ```
 
 ### Frontend (`frontend/.env`)
 ```env
-VITE_API_URL=http://localhost:5000/
+VITE_API_URL=http://localhost:5000
 ```
 
 ---
@@ -156,33 +170,18 @@ VITE_API_URL=http://localhost:5000/
 
 ```
 StudyNowAI/
-├── frontend/
-│   ├── src/
-│   │   ├── components/     # Reusable UI (ProctorMonitor, QuizPage, etc.)
-│   │   ├── features/       # Redux slices
-│   │   ├── pages/          # Dashboard, Login, Topic Details
-│   │   ├── services/       # API integration
-│   │   └── ...
+├── frontend/ (React)
+│   ├── src/pages/          # Schedules (DAACS UI), Topics, Quiz
+│   ├── src/features/       # Redux Logic
 │   └── ...
-├── backend/
-│   ├── src/
-│   │   ├── controllers/    # Logic for Roadmap, Quiz, Auth
-│   │   ├── models/         # Mongoose User, Topic schemas
-│   │   ├── services/       # AI Service (Gemini), Proctoring logic
-│   │   └── ...
+├── backend/ (Node.js)
+│   ├── src/controllers/    # Auth, Topic, Scheduler Controllers
+│   ├── src/ml/             # Python DAACS Engine (scheduler.py)
+│   ├── src/models/         # User (Profile), Topic (Graph)
 │   └── ...
 └── README.md
 ```
 
 ---
 
-## 🔮 Future Enhancements
-
-1.  **PDF-to-Roadmap**: Upload textbooks to generate custom study plans.
-2.  **Spaced Repetition (SRS)**: Automated review scheduling based on the "Forgetting Curve".
-3.  **Mobile App**: React Native version for on-the-go learning.
-4.  **Gamification**: Leaderboards, streaks, and achievement badges.
-
----
-
-**StudyNowAI** – *Empowering self-learners with AI.*
+**StudyNowAI** – *Empowering self-learners with Hybrid AI.*
